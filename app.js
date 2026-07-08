@@ -52,6 +52,14 @@ const seed = {
   ]
 };
 
+const legDayExercises = [
+  { name: "Hip thrust", value: "10 kg", sets: "", reps: "" },
+  { name: "Peso muerto", value: "9 kg", sets: "", reps: "" },
+  { name: "Patada de rana", value: "25 kg", sets: "", reps: "" },
+  { name: "Abducciones", value: "25 kg", sets: "", reps: "" },
+  { name: "Escaleras", value: "2,5 min", sets: "", reps: "" }
+];
+
 const load = () => {
   const saved = localStorage.getItem("gym-pwa-data");
   const data = saved ? JSON.parse(saved) : seed;
@@ -78,8 +86,15 @@ const load = () => {
 
   const hasTodayWorkout = data.workouts.some((item) => item.date === todayKey());
   if (!hasTodayWorkout && !data.suggestedLegDay) {
-    data.workouts.push({ date: todayKey(), title: "Pierna", exercises: [] });
+    data.workouts.push({ date: todayKey(), title: "Pierna", exercises: legDayExercises });
     data.suggestedLegDay = true;
+    changed = true;
+  }
+
+  const todayWorkout = data.workouts.find((item) => item.date === todayKey());
+  if (todayWorkout?.title === "Pierna" && !todayWorkout.seededLegExercises && (!todayWorkout.exercises || todayWorkout.exercises.length === 0)) {
+    todayWorkout.exercises = legDayExercises;
+    todayWorkout.seededLegExercises = true;
     changed = true;
   }
 
@@ -147,6 +162,7 @@ function render() {
   setText("weightStreak", String(state.weights.length));
   setText("streakSummary", `Dia ${dayNumber}`);
   setText("workoutTitleLabel", workout.title || "Sin entreno");
+  setText("todayWorkoutMini", workout.title || "Sin entreno");
   document.getElementById("workoutTitleInput").value = workout.title || "";
 
   document.getElementById("todaySummary").innerHTML = [
@@ -156,11 +172,16 @@ function render() {
   ].map((item) => `<li>${item}</li>`).join("");
 
   document.getElementById("exerciseList").innerHTML = workout.exercises.map((item) => (
-    `<div class="exercise-item"><strong>${item.name}</strong><span>${item.value}</span></div>`
+    `<div class="exercise-item"><strong>${item.name}</strong><span>${[
+      item.sets ? `${item.sets} series` : "",
+      item.reps ? `${item.reps} reps` : "",
+      item.value
+    ].filter(Boolean).join(" · ")}</span></div>`
   )).join("");
 
   renderModules();
   renderHistory();
+  renderStreakDots();
 
   const weights = state.weights.slice(-8);
   const min = Math.min(...weights.map((item) => item.value), state.targetWeight);
@@ -168,6 +189,14 @@ function render() {
   document.getElementById("weightChart").innerHTML = weights.map((item) => {
     const height = 20 + ((max - item.value) / Math.max(1, max - min)) * 110;
     return `<div style="height:${height}px" title="${item.date}: ${item.value} kg"></div>`;
+  }).join("");
+}
+
+function renderStreakDots() {
+  const days = Array.from({ length: 7 }, (_, index) => addDays(todayKey(), index - 6));
+  document.getElementById("streakColors").innerHTML = days.map((date) => {
+    const trained = state.workouts.some((item) => item.date === date && (item.title || item.exercises?.length));
+    return `<span class="streak-dot ${trained ? "done" : ""}" title="${date}"></span>`;
   }).join("");
 }
 
@@ -254,12 +283,25 @@ document.getElementById("workoutTitleForm").addEventListener("submit", (event) =
 document.getElementById("exerciseForm").addEventListener("submit", (event) => {
   event.preventDefault();
   const name = document.getElementById("exerciseName");
+  const sets = document.getElementById("exerciseSets");
+  const reps = document.getElementById("exerciseReps");
   const value = document.getElementById("exerciseWeight");
   if (!name.value.trim() || !value.value.trim()) return;
-  ensureWorkout().exercises.push({ name: name.value.trim(), value: value.value.trim() });
+  ensureWorkout().exercises.push({
+    name: name.value.trim(),
+    sets: sets.value.trim(),
+    reps: reps.value.trim(),
+    value: value.value.trim()
+  });
   name.value = "";
+  sets.value = "";
+  reps.value = "";
   value.value = "";
   save();
+});
+
+document.getElementById("goWorkoutButton").addEventListener("click", () => {
+  document.querySelector('[data-view="workouts"]').click();
 });
 
 document.getElementById("moduleList").addEventListener("click", (event) => {

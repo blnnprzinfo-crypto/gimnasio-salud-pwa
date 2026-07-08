@@ -7,9 +7,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Gimnasio" />
-    <link rel="manifest" href="./manifest.webmanifest?v=4" />
+    <link rel="manifest" href="./manifest.webmanifest?v=5" />
     <link rel="icon" href="./icons/icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=4" />
+    <link rel="stylesheet" href="./styles.css?v=5" />
     <title>Gimnasio Salud</title>
   </head>
   <body>
@@ -49,6 +49,14 @@
       </section>
 
       <section class="view active" id="todayView">
+        <article class="panel priority-panel">
+          <div class="panel-title">
+            <h2>Entreno del dia</h2>
+            <span id="todayWorkoutMini">Pierna</span>
+          </div>
+          <button class="wide-action" id="goWorkoutButton" type="button">Abrir entrenamiento</button>
+        </article>
+
         <article class="panel">
           <div class="panel-title">
             <h2>Agua</h2>
@@ -64,7 +72,7 @@
           <p class="message" id="waterMessage">Empieza con 500 ml. Facil, rapido y cuenta.</p>
         </article>
 
-        <article class="panel">
+        <article class="panel compact-panel">
           <div class="panel-title">
             <h2>Peso</h2>
             <span id="weightDelta">Sin cambios</span>
@@ -82,6 +90,7 @@
             <span id="streakSummary">Dia 1</span>
           </div>
           <ul class="summary-list" id="todaySummary"></ul>
+          <div class="streak-colors" id="streakColors"></div>
         </article>
 
         <article class="panel" id="customModulesPanel">
@@ -126,8 +135,10 @@
             <button type="submit">Dia</button>
           </form>
           <form class="exercise-form" id="exerciseForm">
-            <input id="exerciseName" placeholder="Ejercicio o maquina" />
-            <input id="exerciseWeight" inputmode="decimal" placeholder="Kg o minutos" />
+            <input id="exerciseName" placeholder="Ej: prensa, hip thrust, jalon al pecho" />
+            <input id="exerciseSets" inputmode="numeric" placeholder="Series, ej: 3" />
+            <input id="exerciseReps" inputmode="numeric" placeholder="Reps, ej: 12" />
+            <input id="exerciseWeight" inputmode="decimal" placeholder="Kg o minutos, ej: 25 kg / 17 min" />
             <button type="submit">Anadir</button>
           </form>
           <div class="exercise-list" id="exerciseList"></div>
@@ -165,8 +176,8 @@
           <button type="submit">Crear modulo</button>
         </form>
       </dialog>
-      <p class="app-version">v4</p>
+      <p class="app-version">v5</p>
     </main>
-    <script src="./app.js?v=4"></script>
+    <script src="./app.js?v=5"></script>
   </body>
 </html>
