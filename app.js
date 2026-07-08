@@ -164,6 +164,7 @@ function render() {
   setText("workoutTitleLabel", workout.title || "Sin entreno");
   setText("todayWorkoutMini", workout.title || "Sin entreno");
   document.getElementById("workoutTitleInput").value = workout.title || "";
+  updateHealthLinks(weight, water, workout);
 
   document.getElementById("todaySummary").innerHTML = [
     `${isToday ? "Hoy" : "Este dia"}: ${workout.title || "sin entreno marcado"}.`,
@@ -190,6 +191,16 @@ function render() {
     const height = 20 + ((max - item.value) / Math.max(1, max - min)) * 110;
     return `<div style="height:${height}px" title="${item.date}: ${item.value} kg"></div>`;
   }).join("");
+}
+
+function shortcutUrl(name, text) {
+  return `shortcuts://run-shortcut?name=${encodeURIComponent(name)}&input=text&text=${encodeURIComponent(text)}`;
+}
+
+function updateHealthLinks(weight, water, workout) {
+  document.getElementById("shortcutWaterLink").href = shortcutUrl("Gym Agua", String(water || 500));
+  document.getElementById("shortcutWeightLink").href = shortcutUrl("Gym Peso", String(weight));
+  document.getElementById("shortcutWorkoutLink").href = shortcutUrl("Gym Entreno", `${selectedDate}|${workout.title || "Entreno"}|${workout.exercises?.length || 0} ejercicios`);
 }
 
 function renderStreakDots() {
@@ -302,6 +313,22 @@ document.getElementById("exerciseForm").addEventListener("submit", (event) => {
 
 document.getElementById("goWorkoutButton").addEventListener("click", () => {
   document.querySelector('[data-view="workouts"]').click();
+});
+
+document.getElementById("quickWorkoutButton").addEventListener("click", () => {
+  document.querySelector('[data-view="workouts"]').click();
+});
+
+document.getElementById("quickWeightButton").addEventListener("click", () => {
+  document.getElementById("weightInput").focus();
+});
+
+document.getElementById("healthHelpButton").addEventListener("click", () => {
+  document.getElementById("healthDialog").showModal();
+});
+
+document.getElementById("closeHealthDialog").addEventListener("click", () => {
+  document.getElementById("healthDialog").close();
 });
 
 document.getElementById("moduleList").addEventListener("click", (event) => {
