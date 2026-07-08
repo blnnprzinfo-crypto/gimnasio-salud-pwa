@@ -16,7 +16,7 @@
     <main class="app-shell">
       <header class="topbar">
         <div>
-          <p class="eyebrow">Dia 1 - vuelta al gimnasio</p>
+          <p class="eyebrow" id="dayLabel">Vuelta al gimnasio</p>
           <h1>Gimnasio Salud</h1>
         </div>
         <button class="icon-button" id="editModulesButton" aria-label="Editar modulos">✎</button>
@@ -39,10 +39,19 @@
         <button class="tab" data-view="workouts">Gimnasio</button>
       </nav>
 
+      <section class="date-strip" aria-label="Elegir dia">
+        <button id="prevDayButton" type="button">Ayer</button>
+        <div>
+          <strong id="selectedDateLabel">Hoy</strong>
+          <span id="selectedDateDetail"></span>
+        </div>
+        <button id="nextDayButton" type="button">Manana</button>
+      </section>
+
       <section class="view active" id="todayView">
         <article class="panel">
           <div class="panel-title">
-            <h2>Agua de hoy</h2>
+            <h2>Agua</h2>
             <span id="waterSummary">0 / 2000 ml</span>
           </div>
           <div class="bar"><span id="waterBar"></span></div>
@@ -90,6 +99,13 @@
           <div class="chart" id="weightChart"></div>
         </article>
         <article class="panel">
+          <div class="panel-title">
+            <h2>Historial</h2>
+            <span>Ultimos dias</span>
+          </div>
+          <div class="history-list" id="historyList"></div>
+        </article>
+        <article class="panel">
           <h2>Consistencia</h2>
           <div class="stats-grid">
             <div><strong id="workoutsWeek">1</strong><span>Entrenos semana</span></div>
@@ -102,9 +118,13 @@
       <section class="view" id="workoutsView">
         <article class="panel">
           <div class="panel-title">
-            <h2>Entreno de hoy</h2>
-            <span>Espalda</span>
+            <h2>Entreno</h2>
+            <span id="workoutTitleLabel">Sin entreno</span>
           </div>
+          <form class="inline-form" id="workoutTitleForm">
+            <input id="workoutTitleInput" placeholder="Ej: Pierna, pecho, espalda, cardio" />
+            <button type="submit">Dia</button>
+          </form>
           <form class="exercise-form" id="exerciseForm">
             <input id="exerciseName" placeholder="Ejercicio o maquina" />
             <input id="exerciseWeight" inputmode="decimal" placeholder="Kg o minutos" />

@@ -1,8 +1,32 @@
-const todayKey = () => new Date().toISOString().slice(0, 10);
+const dateKey = (date = new Date()) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+const todayKey = () => dateKey();
+const addDays = (key, days) => {
+  const [year, month, day] = key.split("-").map(Number);
+  const date = new Date(year, month - 1, day + days);
+  return dateKey(date);
+};
+const formatDate = (key) => {
+  const [year, month, day] = key.split("-").map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString("es-ES", {
+    weekday: "short",
+    day: "numeric",
+    month: "short"
+  });
+};
+const daysBetween = (start, end) => Math.floor((new Date(end) - new Date(start)) / 86400000);
+
+const yesterdayKey = () => addDays(todayKey(), -1);
 const seed = {
   targetWeight: 65,
   waterGoal: 2000,
-  weights: [{ date: todayKey(), value: 80 }],
+  startDate: yesterdayKey(),
+  migratedBackDay: true,
+  weights: [{ date: yesterdayKey(), value: 80 }],
   water: {},
   modules: [
     {
@@ -15,7 +39,7 @@ const seed = {
   ],
   workouts: [
     {
-      date: todayKey(),
+      date: yesterdayKey(),
       title: "Espalda",
       exercises: [
         { name: "Jalon al pecho", value: "30 kg" },
@@ -32,10 +56,42 @@ const load = () => {
   const saved = localStorage.getItem("gym-pwa-data");
   const data = saved ? JSON.parse(saved) : seed;
   data.modules = data.modules || seed.modules;
+  data.water = data.water || {};
+  data.weights = data.weights || seed.weights;
+  data.workouts = data.workouts || seed.workouts;
+  data.startDate = data.startDate || data.workouts[0]?.date || data.weights[0]?.date || todayKey();
+
+  const hasOnlyDefaultBackDay = data.workouts.length === 1
+    && data.workouts[0].title === "Espalda"
+    && data.workouts[0].date === todayKey()
+    && data.workouts[0].exercises?.length === 5
+    && !data.migratedBackDay;
+  let changed = false;
+
+  if (hasOnlyDefaultBackDay) {
+    data.workouts[0].date = yesterdayKey();
+    data.weights = data.weights.map((item) => item.date === todayKey() ? { ...item, date: yesterdayKey() } : item);
+    data.startDate = yesterdayKey();
+    data.migratedBackDay = true;
+    changed = true;
+  }
+
+  const hasTodayWorkout = data.workouts.some((item) => item.date === todayKey());
+  if (!hasTodayWorkout && !data.suggestedLegDay) {
+    data.workouts.push({ date: todayKey(), title: "Pierna", exercises: [] });
+    data.suggestedLegDay = true;
+    changed = true;
+  }
+
+  if (changed) {
+    localStorage.setItem("gym-pwa-data", JSON.stringify(data));
+  }
+
   return data;
 };
 
 let state = load();
+let selectedDate = todayKey();
 
 const save = () => {
   localStorage.setItem("gym-pwa-data", JSON.stringify(state));
@@ -43,11 +99,12 @@ const save = () => {
 };
 
 const latestWeight = () => state.weights[state.weights.length - 1]?.value || 80;
-const todayWater = () => state.water[todayKey()] || 0;
-const todayWorkout = () => {
-  let workout = state.workouts.find((item) => item.date === todayKey());
+const selectedWater = () => state.water[selectedDate] || 0;
+const getWorkout = (date = selectedDate) => state.workouts.find((item) => item.date === date);
+const ensureWorkout = () => {
+  let workout = state.workouts.find((item) => item.date === selectedDate);
   if (!workout) {
-    workout = { date: todayKey(), title: "Entreno", exercises: [] };
+    workout = { date: selectedDate, title: "", exercises: [] };
     state.workouts.push(workout);
   }
   return workout;
@@ -62,16 +119,23 @@ function render() {
   const totalToLose = 80 - state.targetWeight;
   const lost = 80 - weight;
   const progress = Math.max(0, Math.min(100, Math.round((lost / totalToLose) * 100)));
-  const water = todayWater();
+  const water = selectedWater();
   const waterPct = Math.min(100, Math.round((water / state.waterGoal) * 100));
-  const workout = todayWorkout();
+  const workout = getWorkout() || { title: "", exercises: [] };
+  const dayNumber = Math.max(1, daysBetween(state.startDate, selectedDate) + 1);
+  const isToday = selectedDate === todayKey();
+  const isYesterday = selectedDate === yesterdayKey();
+
+  setText("dayLabel", `Dia ${dayNumber} - ${isToday ? "hoy" : formatDate(selectedDate)}`);
+  setText("selectedDateLabel", isToday ? "Hoy" : isYesterday ? "Ayer" : formatDate(selectedDate));
+  setText("selectedDateDetail", selectedDate);
 
   setText("currentWeight", `${weight.toFixed(1).replace(".0", "")} kg`);
   setText("weightProgress", `${progress}%`);
   document.querySelector(".progress-ring").style.background = `conic-gradient(var(--green) ${progress * 3.6}deg, rgba(255,255,255,0.12) 0deg)`;
   setText("waterSummary", `${water} / ${state.waterGoal} ml`);
   document.getElementById("waterBar").style.width = `${waterPct}%`;
-  setText("waterMessage", water >= state.waterGoal ? "Objetivo de agua cumplido. Buen trabajo." : `Te faltan ${state.waterGoal - water} ml para cumplir tu objetivo.`);
+  setText("waterMessage", water >= state.waterGoal ? "Objetivo de agua cumplido. Buen trabajo." : `Faltan ${state.waterGoal - water} ml para cumplir este dia.`);
 
   const firstWeight = state.weights[0]?.value || weight;
   const delta = weight - firstWeight;
@@ -81,12 +145,14 @@ function render() {
   setText("workoutsWeek", String(state.workouts.length));
   setText("waterStreak", water >= state.waterGoal ? "1" : "0");
   setText("weightStreak", String(state.weights.length));
-  setText("streakSummary", `Dia ${state.workouts.length}`);
+  setText("streakSummary", `Dia ${dayNumber}`);
+  setText("workoutTitleLabel", workout.title || "Sin entreno");
+  document.getElementById("workoutTitleInput").value = workout.title || "";
 
   document.getElementById("todaySummary").innerHTML = [
-    `Has entrenado ${state.workouts.length} vez esta semana.`,
+    `${isToday ? "Hoy" : "Este dia"}: ${workout.title || "sin entreno marcado"}.`,
     water >= state.waterGoal ? "Has cumplido el agua de hoy." : `Te faltan ${state.waterGoal - water} ml de agua.`,
-    `Hoy tienes ${workout.exercises.length} ejercicios registrados.`
+    `${workout.exercises.length} ejercicios registrados.`
   ].map((item) => `<li>${item}</li>`).join("");
 
   document.getElementById("exerciseList").innerHTML = workout.exercises.map((item) => (
@@ -94,6 +160,7 @@ function render() {
   )).join("");
 
   renderModules();
+  renderHistory();
 
   const weights = state.weights.slice(-8);
   const min = Math.min(...weights.map((item) => item.value), state.targetWeight);
@@ -104,6 +171,25 @@ function render() {
   }).join("");
 }
 
+function renderHistory() {
+  const dates = [...new Set([
+    ...state.workouts.map((item) => item.date),
+    ...state.weights.map((item) => item.date),
+    ...Object.keys(state.water)
+  ])].sort().reverse().slice(0, 10);
+
+  document.getElementById("historyList").innerHTML = dates.map((date) => {
+  const workout = getWorkout(date);
+    const weight = state.weights.find((item) => item.date === date);
+    const water = state.water[date] || 0;
+    return `
+      <button class="history-item" data-go-date="${date}" type="button">
+        <strong>${date === todayKey() ? "Hoy" : date === yesterdayKey() ? "Ayer" : formatDate(date)}</strong>
+        <span>${workout?.title || "Sin entreno"} · ${workout?.exercises?.length || 0} ejercicios · ${water} ml agua${weight ? ` · ${weight.value} kg` : ""}</span>
+      </button>`;
+  }).join("") || `<div class="module-empty">Aun no hay historial. Empieza registrando hoy.</div>`;
+}
+
 function renderModules() {
   const list = document.getElementById("moduleList");
   if (!state.modules.length) {
@@ -112,7 +198,7 @@ function renderModules() {
   }
 
   list.innerHTML = state.modules.map((module) => {
-    const value = module.entries?.[todayKey()] || "";
+    const value = module.entries?.[selectedDate] || "";
     if (module.type === "check") {
       return `
         <div class="module-item" data-module-id="${module.id}">
@@ -141,7 +227,7 @@ function renderModules() {
 
 document.querySelectorAll("[data-water]").forEach((button) => {
   button.addEventListener("click", () => {
-    state.water[todayKey()] = todayWater() + Number(button.dataset.water);
+    state.water[selectedDate] = selectedWater() + Number(button.dataset.water);
     save();
   });
 });
@@ -151,9 +237,17 @@ document.getElementById("weightForm").addEventListener("submit", (event) => {
   const input = document.getElementById("weightInput");
   const value = Number(String(input.value).replace(",", "."));
   if (!value) return;
-  state.weights = state.weights.filter((item) => item.date !== todayKey());
-  state.weights.push({ date: todayKey(), value });
+  state.weights = state.weights.filter((item) => item.date !== selectedDate);
+  state.weights.push({ date: selectedDate, value });
+  state.weights.sort((a, b) => a.date.localeCompare(b.date));
   input.value = "";
+  save();
+});
+
+document.getElementById("workoutTitleForm").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const input = document.getElementById("workoutTitleInput");
+  ensureWorkout().title = input.value.trim();
   save();
 });
 
@@ -162,7 +256,7 @@ document.getElementById("exerciseForm").addEventListener("submit", (event) => {
   const name = document.getElementById("exerciseName");
   const value = document.getElementById("exerciseWeight");
   if (!name.value.trim() || !value.value.trim()) return;
-  todayWorkout().exercises.push({ name: name.value.trim(), value: value.value.trim() });
+  ensureWorkout().exercises.push({ name: name.value.trim(), value: value.value.trim() });
   name.value = "";
   value.value = "";
   save();
@@ -178,7 +272,7 @@ document.getElementById("moduleList").addEventListener("click", (event) => {
     const input = document.querySelector(`[data-module-input="${saveId}"]`);
     if (!module || !input.value.trim()) return;
     module.entries = module.entries || {};
-    module.entries[todayKey()] = input.value.trim();
+    module.entries[selectedDate] = input.value.trim();
     save();
   }
 
@@ -186,7 +280,7 @@ document.getElementById("moduleList").addEventListener("click", (event) => {
     const module = state.modules.find((item) => item.id === toggleId);
     if (!module) return;
     module.entries = module.entries || {};
-    module.entries[todayKey()] = module.entries[todayKey()] ? "" : "Hecho";
+    module.entries[selectedDate] = module.entries[selectedDate] ? "" : "Hecho";
     save();
   }
 
@@ -194,6 +288,24 @@ document.getElementById("moduleList").addEventListener("click", (event) => {
     state.modules = state.modules.filter((item) => item.id !== deleteId);
     save();
   }
+});
+
+document.getElementById("prevDayButton").addEventListener("click", () => {
+  selectedDate = addDays(selectedDate, -1);
+  render();
+});
+
+document.getElementById("nextDayButton").addEventListener("click", () => {
+  selectedDate = addDays(selectedDate, 1);
+  render();
+});
+
+document.getElementById("historyList").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-go-date]");
+  if (!button) return;
+  selectedDate = button.dataset.goDate;
+  document.querySelector('[data-view="today"]').click();
+  render();
 });
 
 document.getElementById("editModulesButton").addEventListener("click", () => {
