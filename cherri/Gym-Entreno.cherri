@@ -1,0 +1,22 @@
+/* Gym Entreno
+   Cherri source for Cherri Playground.
+   Input expected from the PWA: date|name|summary, e.g.
+   2026-07-08|Pierna|5 ejercicios
+   In Shortcuts, use it to start/log a workout or append a note.
+*/
+
+#define color red
+#define glyph flame
+
+@info = shortcutInput()
+if @info == "" {
+  @info = askForInput("Entreno realizado", "Pierna | 5 ejercicios")
+}
+
+show("Registrar entreno: {@info}")
+/* Cherri Playground/Shortcuts step to add after export:
+   Log Workout
+   Type: Traditional Strength Training
+   Start/End: current date or ask when running
+   Notes: {@info}
+*/

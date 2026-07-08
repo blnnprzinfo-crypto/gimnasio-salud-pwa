@@ -107,11 +107,22 @@ const load = () => {
 
 let state = load();
 let selectedDate = todayKey();
+let gymTimerInterval = null;
 
 const save = () => {
   localStorage.setItem("gym-pwa-data", JSON.stringify(state));
   render();
 };
+
+const fileToDataUrl = (file) => new Promise((resolve) => {
+  if (!file) {
+    resolve("");
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => resolve(reader.result);
+  reader.readAsDataURL(file);
+});
 
 const latestWeight = () => state.weights[state.weights.length - 1]?.value || 80;
 const selectedWater = () => state.water[selectedDate] || 0;
@@ -165,6 +176,7 @@ function render() {
   setText("todayWorkoutMini", workout.title || "Sin entreno");
   document.getElementById("workoutTitleInput").value = workout.title || "";
   updateHealthLinks(weight, water, workout);
+  renderGymTimer();
 
   document.getElementById("todaySummary").innerHTML = [
     `${isToday ? "Hoy" : "Este dia"}: ${workout.title || "sin entreno marcado"}.`,
@@ -173,11 +185,14 @@ function render() {
   ].map((item) => `<li>${item}</li>`).join("");
 
   document.getElementById("exerciseList").innerHTML = workout.exercises.map((item) => (
-    `<div class="exercise-item"><strong>${item.name}</strong><span>${[
-      item.sets ? `${item.sets} series` : "",
-      item.reps ? `${item.reps} reps` : "",
-      item.value
-    ].filter(Boolean).join(" · ")}</span></div>`
+    `<div class="exercise-item">
+      <div class="exercise-thumb">${item.photo ? `<img src="${item.photo}" alt="">` : "🏋"}</div>
+      <div><strong>${item.name}</strong><span>${[
+        item.sets ? `${item.sets} series` : "",
+        item.reps ? `${item.reps} reps` : "",
+        item.value
+      ].filter(Boolean).join(" · ")}</span></div>
+    </div>`
   )).join("");
 
   renderModules();
@@ -191,6 +206,16 @@ function render() {
     const height = 20 + ((max - item.value) / Math.max(1, max - min)) * 110;
     return `<div style="height:${height}px" title="${item.date}: ${item.value} kg"></div>`;
   }).join("");
+}
+
+function renderGymTimer() {
+  const active = state.gymTimer?.active;
+  const startedAt = state.gymTimer?.startedAt;
+  const elapsed = active && startedAt ? Date.now() - startedAt : (state.gymTimer?.elapsed || 0);
+  const minutes = Math.floor(elapsed / 60000);
+  const seconds = Math.floor((elapsed % 60000) / 1000);
+  setText("gymTimerLabel", `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`);
+  setText("gymTimerMessage", active ? "Modo gym activo. Cuando acabes, toca Terminar." : "Cuenta cuanto tiempo estas entrenando hoy.");
 }
 
 function shortcutUrl(name, text) {
@@ -207,7 +232,7 @@ function renderStreakDots() {
   const days = Array.from({ length: 7 }, (_, index) => addDays(todayKey(), index - 6));
   document.getElementById("streakColors").innerHTML = days.map((date) => {
     const trained = state.workouts.some((item) => item.date === date && (item.title || item.exercises?.length));
-    return `<span class="streak-dot ${trained ? "done" : ""}" title="${date}"></span>`;
+    return `<span class="streak-dot ${trained ? "done" : ""}" title="${date}">${trained ? "🔥" : "·"}</span>`;
   }).join("");
 }
 
@@ -291,23 +316,26 @@ document.getElementById("workoutTitleForm").addEventListener("submit", (event) =
   save();
 });
 
-document.getElementById("exerciseForm").addEventListener("submit", (event) => {
+document.getElementById("exerciseForm").addEventListener("submit", async (event) => {
   event.preventDefault();
   const name = document.getElementById("exerciseName");
   const sets = document.getElementById("exerciseSets");
   const reps = document.getElementById("exerciseReps");
   const value = document.getElementById("exerciseWeight");
+  const photo = document.getElementById("exercisePhoto");
   if (!name.value.trim() || !value.value.trim()) return;
   ensureWorkout().exercises.push({
     name: name.value.trim(),
     sets: sets.value.trim(),
     reps: reps.value.trim(),
-    value: value.value.trim()
+    value: value.value.trim(),
+    photo: await fileToDataUrl(photo.files?.[0])
   });
   name.value = "";
   sets.value = "";
   reps.value = "";
   value.value = "";
+  photo.value = "";
   save();
 });
 
@@ -329,6 +357,39 @@ document.getElementById("healthHelpButton").addEventListener("click", () => {
 
 document.getElementById("quickHealthButton").addEventListener("click", () => {
   document.querySelector(".health-panel").scrollIntoView({ behavior: "smooth", block: "center" });
+});
+
+document.getElementById("startGymTimerButton").addEventListener("click", () => {
+  state.gymTimer = { active: true, startedAt: Date.now(), elapsed: state.gymTimer?.elapsed || 0 };
+  save();
+  clearInterval(gymTimerInterval);
+  gymTimerInterval = setInterval(renderGymTimer, 1000);
+});
+
+document.getElementById("stopGymTimerButton").addEventListener("click", () => {
+  if (state.gymTimer?.active) {
+    const elapsed = Date.now() - state.gymTimer.startedAt;
+    state.gymTimer = { active: false, elapsed };
+    const workout = ensureWorkout();
+    workout.durationMin = Math.round(elapsed / 60000);
+    save();
+  }
+  clearInterval(gymTimerInterval);
+});
+
+document.getElementById("enableNotificationsButton").addEventListener("click", async () => {
+  const message = document.getElementById("notificationMessage");
+  if (!("Notification" in window)) {
+    message.textContent = "Este navegador no permite notificaciones web.";
+    return;
+  }
+  const permission = await Notification.requestPermission();
+  if (permission === "granted") {
+    message.textContent = "Notificaciones activadas. Te mostrare un aviso de prueba.";
+    new Notification("Agua", { body: "Recuerda beber 500 ml." });
+  } else {
+    message.textContent = "No se han activado. Revisa permisos de Safari/iPhone.";
+  }
 });
 
 document.getElementById("closeHealthDialog").addEventListener("click", () => {
@@ -438,3 +499,6 @@ if ("serviceWorker" in navigator) {
 }
 
 render();
+if (state.gymTimer?.active) {
+  gymTimerInterval = setInterval(renderGymTimer, 1000);
+}

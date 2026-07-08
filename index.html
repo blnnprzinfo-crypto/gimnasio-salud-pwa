@@ -7,9 +7,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Gimnasio" />
-    <link rel="manifest" href="./manifest.webmanifest?v=8" />
+    <link rel="manifest" href="./manifest.webmanifest?v=9" />
     <link rel="icon" href="./icons/icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=8" />
+    <link rel="stylesheet" href="./styles.css?v=9" />
     <title>Gimnasio Salud</title>
   </head>
   <body>
@@ -64,10 +64,22 @@
           <button class="wide-action" id="goWorkoutButton" type="button">Abrir entrenamiento</button>
         </article>
 
+        <article class="panel focus-panel">
+          <div class="panel-title">
+            <h2>Modo gym</h2>
+            <span id="gymTimerLabel">00:00</span>
+          </div>
+          <div class="focus-actions">
+            <button id="startGymTimerButton" type="button">Empezar</button>
+            <button id="stopGymTimerButton" type="button">Terminar</button>
+          </div>
+          <p class="message" id="gymTimerMessage">Cuenta cuanto tiempo estas entrenando hoy.</p>
+        </article>
+
         <article class="panel health-panel">
           <div class="panel-title">
             <h2>Apple Salud</h2>
-            <span>Cherry</span>
+            <span>Cherri</span>
           </div>
           <p class="message">Toca un boton y se abre el Atajo correspondiente en el iPhone.</p>
           <div class="health-actions">
@@ -75,7 +87,21 @@
             <a id="shortcutWeightLink" href="#">Peso</a>
             <a id="shortcutWorkoutLink" href="#">Entreno</a>
           </div>
+          <div class="health-actions secondary-health-actions">
+            <a href="./cherri/Gym-Agua.cherri">Cherri Agua</a>
+            <a href="./cherri/Gym-Peso.cherri">Cherri Peso</a>
+            <a href="./cherri/Gym-Entreno.cherri">Cherri Entreno</a>
+          </div>
           <button class="text-action" id="healthHelpButton" type="button">Como crear los Atajos</button>
+        </article>
+
+        <article class="panel notify-panel">
+          <div class="panel-title">
+            <h2>Recordatorios</h2>
+            <span>iPhone</span>
+          </div>
+          <button class="wide-action" id="enableNotificationsButton" type="button">Activar aviso de agua</button>
+          <p class="message" id="notificationMessage">En iPhone funciona si la app esta anadida a pantalla de inicio y Safari permite notificaciones.</p>
         </article>
 
         <article class="panel">
@@ -160,6 +186,10 @@
             <input id="exerciseSets" inputmode="numeric" placeholder="Series, ej: 3" />
             <input id="exerciseReps" inputmode="numeric" placeholder="Reps, ej: 12" />
             <input id="exerciseWeight" inputmode="decimal" placeholder="Kg o minutos, ej: 25 kg / 17 min" />
+            <label class="photo-picker">
+              Foto de maquina
+              <input id="exercisePhoto" type="file" accept="image/*" />
+            </label>
             <button type="submit">Anadir</button>
           </form>
           <div class="exercise-list" id="exerciseList"></div>
@@ -203,7 +233,7 @@
           <button class="ghost-button" id="closeHealthDialog" type="button">Cerrar</button>
         </div>
         <div class="shortcut-guide">
-          <p>Crea 3 Atajos en iPhone con estos nombres exactos:</p>
+          <p>He dejado los archivos Cherri en la app. Abrelos, pegalos en Cherri Playground y exporta los Atajos con estos nombres exactos:</p>
           <ol>
             <li><strong>Gym Agua</strong>: recibe texto y usa "Registrar muestra de salud" → Agua.</li>
             <li><strong>Gym Peso</strong>: recibe texto y usa "Registrar muestra de salud" → Peso.</li>
@@ -212,8 +242,8 @@
           <p>Despues, los botones integrados en la app abriran esos Atajos con el dato preparado.</p>
         </div>
       </dialog>
-      <p class="app-version">v8</p>
+      <p class="app-version">v9</p>
     </main>
-    <script src="./app.js?v=8"></script>
+    <script src="./app.js?v=9"></script>
   </body>
 </html>
