@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Gimnasio" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icons/icon.svg" />
+    <link rel="stylesheet" href="./styles.css" />
+    <title>Gimnasio Salud</title>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Dia 1 - vuelta al gimnasio</p>
+          <h1>Gimnasio Salud</h1>
+        </div>
+        <button class="icon-button" id="installHelpButton" aria-label="Instalar">+</button>
+      </header>
+
+      <section class="hero-panel">
+        <div>
+          <span class="soft-label">Peso actual</span>
+          <strong id="currentWeight">80 kg</strong>
+          <small>Objetivo inicial: 65 kg</small>
+        </div>
+        <div class="progress-ring" aria-label="Progreso al objetivo">
+          <span id="weightProgress">0%</span>
+        </div>
+      </section>
+
+      <nav class="tabs" aria-label="Vistas">
+        <button class="tab active" data-view="today">Hoy</button>
+        <button class="tab" data-view="stats">Progreso</button>
+        <button class="tab" data-view="workouts">Gimnasio</button>
+      </nav>
+
+      <section class="view active" id="todayView">
+        <article class="panel">
+          <div class="panel-title">
+            <h2>Agua de hoy</h2>
+            <span id="waterSummary">0 / 2000 ml</span>
+          </div>
+          <div class="bar"><span id="waterBar"></span></div>
+          <div class="quick-grid">
+            <button data-water="250">+250 ml</button>
+            <button data-water="500">+500 ml</button>
+            <button data-water="750">+750 ml</button>
+            <button data-water="1000">+1 L</button>
+          </div>
+          <p class="message" id="waterMessage">Empieza con 500 ml. Facil, rapido y cuenta.</p>
+        </article>
+
+        <article class="panel">
+          <div class="panel-title">
+            <h2>Peso</h2>
+            <span id="weightDelta">Sin cambios</span>
+          </div>
+          <form class="inline-form" id="weightForm">
+            <input id="weightInput" inputmode="decimal" placeholder="Ej: 79.8" aria-label="Peso de hoy" />
+            <button type="submit">Guardar</button>
+          </form>
+          <p class="message" id="weightMessage">Placeholder: escribe tu peso de hoy en kg.</p>
+        </article>
+
+        <article class="panel">
+          <div class="panel-title">
+            <h2>Resumen</h2>
+            <span id="streakSummary">Dia 1</span>
+          </div>
+          <ul class="summary-list" id="todaySummary"></ul>
+        </article>
+      </section>
+
+      <section class="view" id="statsView">
+        <article class="panel">
+          <h2>Evolucion de peso</h2>
+          <div class="chart" id="weightChart"></div>
+        </article>
+        <article class="panel">
+          <h2>Consistencia</h2>
+          <div class="stats-grid">
+            <div><strong id="workoutsWeek">1</strong><span>Entrenos semana</span></div>
+            <div><strong id="waterStreak">0</strong><span>Racha agua</span></div>
+            <div><strong id="weightStreak">0</strong><span>Racha peso</span></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="view" id="workoutsView">
+        <article class="panel">
+          <div class="panel-title">
+            <h2>Entreno de hoy</h2>
+            <span>Espalda</span>
+          </div>
+          <form class="exercise-form" id="exerciseForm">
+            <input id="exerciseName" placeholder="Ejercicio o maquina" />
+            <input id="exerciseWeight" inputmode="decimal" placeholder="Kg o minutos" />
+            <button type="submit">Anadir</button>
+          </form>
+          <div class="exercise-list" id="exerciseList"></div>
+        </article>
+      </section>
+
+      <dialog id="installDialog">
+        <h2>Guardarla en el iPhone</h2>
+        <p>Cuando esta app este subida a una URL publica: abre Safari, toca compartir y elige "Anadir a pantalla de inicio".</p>
+        <button id="closeInstallDialog">Entendido</button>
+      </dialog>
+    </main>
+    <script src="./app.js"></script>
+  </body>
+</html>
