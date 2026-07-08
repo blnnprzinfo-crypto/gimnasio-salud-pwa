@@ -7,9 +7,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Gimnasio" />
-    <link rel="manifest" href="./manifest.webmanifest?v=7" />
+    <link rel="manifest" href="./manifest.webmanifest?v=8" />
     <link rel="icon" href="./icons/icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=7" />
+    <link rel="stylesheet" href="./styles.css?v=8" />
     <title>Gimnasio Salud</title>
   </head>
   <body>
@@ -37,7 +37,7 @@
         <button type="button" data-water="500">Beber 500 ml</button>
         <button type="button" id="quickWeightButton">Peso</button>
         <button type="button" id="quickWorkoutButton">Entreno</button>
-        <button type="button" id="healthHelpButton">Apple Salud</button>
+        <button type="button" id="quickHealthButton">Salud</button>
       </section>
 
       <nav class="tabs" aria-label="Vistas">
@@ -67,14 +67,15 @@
         <article class="panel health-panel">
           <div class="panel-title">
             <h2>Apple Salud</h2>
-            <span>Atajos</span>
+            <span>Cherry</span>
           </div>
-          <p class="message">Conecta gratis usando Atajos del iPhone: agua, peso y entreno se pueden mandar a Salud con un toque.</p>
+          <p class="message">Toca un boton y se abre el Atajo correspondiente en el iPhone.</p>
           <div class="health-actions">
-            <a id="shortcutWaterLink" href="#">Registrar agua</a>
-            <a id="shortcutWeightLink" href="#">Registrar peso</a>
-            <a id="shortcutWorkoutLink" href="#">Registrar entreno</a>
+            <a id="shortcutWaterLink" href="#">Agua</a>
+            <a id="shortcutWeightLink" href="#">Peso</a>
+            <a id="shortcutWorkoutLink" href="#">Entreno</a>
           </div>
+          <button class="text-action" id="healthHelpButton" type="button">Como crear los Atajos</button>
         </article>
 
         <article class="panel">
@@ -202,17 +203,17 @@
           <button class="ghost-button" id="closeHealthDialog" type="button">Cerrar</button>
         </div>
         <div class="shortcut-guide">
-          <p>La web no puede acceder directamente a Salud. La forma gratis es crear 3 Atajos en iPhone con estos nombres exactos:</p>
+          <p>Crea 3 Atajos en iPhone con estos nombres exactos:</p>
           <ol>
             <li><strong>Gym Agua</strong>: recibe texto y usa "Registrar muestra de salud" → Agua.</li>
             <li><strong>Gym Peso</strong>: recibe texto y usa "Registrar muestra de salud" → Peso.</li>
             <li><strong>Gym Entreno</strong>: recibe texto y usa "Registrar entrenamiento".</li>
           </ol>
-          <p>Despues, los botones de Apple Salud abriran esos Atajos con el dato preparado.</p>
+          <p>Despues, los botones integrados en la app abriran esos Atajos con el dato preparado.</p>
         </div>
       </dialog>
-      <p class="app-version">v7</p>
+      <p class="app-version">v8</p>
     </main>
-    <script src="./app.js?v=7"></script>
+    <script src="./app.js?v=8"></script>
   </body>
 </html>

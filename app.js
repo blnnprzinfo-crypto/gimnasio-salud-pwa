@@ -327,6 +327,10 @@ document.getElementById("healthHelpButton").addEventListener("click", () => {
   document.getElementById("healthDialog").showModal();
 });
 
+document.getElementById("quickHealthButton").addEventListener("click", () => {
+  document.querySelector(".health-panel").scrollIntoView({ behavior: "smooth", block: "center" });
+});
+
 document.getElementById("closeHealthDialog").addEventListener("click", () => {
   document.getElementById("healthDialog").close();
 });
