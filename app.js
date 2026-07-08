@@ -67,6 +67,18 @@ const planTemplates = {
     { name: "Aperturas", value: "0 kg", sets: "", reps: "" },
     { name: "Fondos asistidos", value: "0 kg", sets: "", reps: "" }
   ],
+  Triceps: [
+    { name: "Triceps en polea", value: "0 kg", sets: "", reps: "" },
+    { name: "Extension cuerda", value: "0 kg", sets: "", reps: "" },
+    { name: "Press frances", value: "0 kg", sets: "", reps: "" },
+    { name: "Fondos asistidos", value: "0 kg", sets: "", reps: "" }
+  ],
+  Gluteo: [
+    { name: "Hip thrust", value: "10 kg", sets: "", reps: "" },
+    { name: "Patada de rana", value: "25 kg", sets: "", reps: "" },
+    { name: "Abducciones", value: "25 kg", sets: "", reps: "" },
+    { name: "Peso muerto rumano", value: "0 kg", sets: "", reps: "" }
+  ],
   Cardio: [
     { name: "Correr cinta", value: "0 min", sets: "", reps: "" },
     { name: "Escaleras", value: "0 min", sets: "", reps: "" },
@@ -101,15 +113,8 @@ const load = () => {
 
   const hasTodayWorkout = data.workouts.some((item) => item.date === todayKey());
   if (!hasTodayWorkout && !data.suggestedLegDay) {
-    data.workouts.push({ date: todayKey(), title: "Pierna", exercises: legDayExercises });
+    data.workouts.push({ date: todayKey(), title: "Pierna", exercises: [] });
     data.suggestedLegDay = true;
-    changed = true;
-  }
-
-  const todayWorkout = data.workouts.find((item) => item.date === todayKey());
-  if (todayWorkout?.title === "Pierna" && !todayWorkout.seededLegExercises && (!todayWorkout.exercises || todayWorkout.exercises.length === 0)) {
-    todayWorkout.exercises = legDayExercises;
-    todayWorkout.seededLegExercises = true;
     changed = true;
   }
 
@@ -160,6 +165,8 @@ const parseKg = (value = "") => {
   return match ? Number(match[1]) : 0;
 };
 
+const normalize = (value = "") => String(value).trim().toLowerCase();
+
 const exerciseKind = (name = "") => {
   const clean = name.toLowerCase();
   if (clean.includes("jalon") || clean.includes("pull")) return "lat";
@@ -194,6 +201,28 @@ const records = () => {
     }
   });
   return [...byName.values()].sort((a, b) => b.kg - a.kg);
+};
+
+const workoutGroupCounts = () => {
+  const counts = new Map();
+  state.workouts.forEach((workout) => {
+    if (!workout.title && !workout.exercises?.length) return;
+    const title = workout.title || "Entreno";
+    counts.set(title, (counts.get(title) || 0) + 1);
+  });
+  return [...counts.entries()].map(([title, count]) => ({ title, count })).sort((a, b) => b.count - a.count);
+};
+
+const matchesTemplateExercises = (workout) => {
+  const template = planTemplates[workout.title] || [];
+  if (!template.length || workout.exercises.length !== template.length) return false;
+  return template.every((exercise, index) => {
+    const current = workout.exercises[index];
+    return normalize(current?.name) === normalize(exercise.name)
+      && String(current?.value || "") === String(exercise.value || "")
+      && !current?.sets
+      && !current?.reps;
+  });
 };
 
 function render() {
@@ -235,6 +264,9 @@ function render() {
   setText("workoutTitleLabel", workout.title || "Sin entreno");
   setText("todayWorkoutMini", workout.title || "Sin entreno");
   document.getElementById("workoutTitleInput").value = workout.title || "";
+  document.querySelectorAll("[data-plan]").forEach((button) => {
+    button.classList.toggle("selected", button.dataset.plan === workout.title);
+  });
   updateHealthLinks(weight, water, workout);
   renderGymTimer();
 
@@ -252,10 +284,12 @@ function render() {
         item.value
       ].filter(Boolean).join(" · ")}</span></div>
     </div>`
-  )).join("");
+  )).join("") || `<div class="module-empty">Aun no has marcado ejercicios para este dia.</div>`;
 
+  renderExercisePicker(workout);
   renderRecords();
   renderHomeRecords();
+  renderGroupCounts();
   renderFeaturedExercise(workout);
   renderCalendar();
 
@@ -302,6 +336,46 @@ function renderFeaturedExercise(workout) {
     const height = 12 + ((value - min) / range) * 72;
     return `<div class="simple-bar ${index === values.length - 1 ? "best" : ""}" style="height:${height}%"><span>${value || ""}</span></div>`;
   }).join("");
+}
+
+function renderExercisePicker(workout) {
+  const plan = planTemplates[workout.title] ? workout.title : "Pierna";
+  const suggestions = planTemplates[plan] || [];
+  const list = document.getElementById("exercisePickerList");
+  setText("exercisePickerPlan", workout.title || "Sin grupo");
+
+  if (!suggestions.length) {
+    list.innerHTML = `<div class="module-empty">Escribe el dia arriba o anade tu ejercicio nuevo abajo.</div>`;
+    return;
+  }
+
+  list.innerHTML = suggestions.map((exercise) => {
+    const done = workout.exercises.some((item) => normalize(item.name) === normalize(exercise.name));
+    return `
+      <button class="exercise-pick ${done ? "done" : ""}" data-template-exercise="${exercise.name}" type="button">
+        <div class="exercise-thumb exercise-thumb-${exerciseKind(exercise.name)}" aria-hidden="true"></div>
+        <div>
+          <strong>${exercise.name}</strong>
+          <span>${done ? "Registrado" : `Tocar para anadir · ${exercise.value || "sin peso"}`}</span>
+        </div>
+        <em>${done ? "OK" : "+"}</em>
+      </button>`;
+  }).join("");
+}
+
+function renderGroupCounts() {
+  const list = document.getElementById("groupCountList");
+  const counts = workoutGroupCounts();
+  const max = Math.max(...counts.map((item) => item.count), 1);
+  list.innerHTML = counts.length ? counts.map((item) => `
+    <div class="group-count-row">
+      <div>
+        <strong>${item.title}</strong>
+        <span>${item.count} ${item.count === 1 ? "dia" : "dias"}</span>
+      </div>
+      <div class="group-count-bar"><i style="width:${Math.max(18, (item.count / max) * 100)}%"></i></div>
+    </div>
+  `).join("") : `<div class="module-empty">Cuando guardes entrenos, aqui veras que grupos repites mas.</div>`;
 }
 
 function renderHomeRecords() {
@@ -429,11 +503,28 @@ document.querySelectorAll("[data-water]").forEach((button) => {
 document.querySelectorAll("[data-plan]").forEach((button) => {
   button.addEventListener("click", () => {
     const workout = ensureWorkout();
+    const canResetTemplate = workout.title !== button.dataset.plan && matchesTemplateExercises(workout);
     workout.title = button.dataset.plan;
-    workout.exercises = (planTemplates[button.dataset.plan] || []).map((exercise) => ({ ...exercise }));
+    if (canResetTemplate) {
+      workout.exercises = [];
+    }
     save();
     document.querySelector('[data-view="workouts"]').click();
   });
+});
+
+document.getElementById("exercisePickerList").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-template-exercise]");
+  if (!button) return;
+  const workout = ensureWorkout();
+  const plan = planTemplates[workout.title] ? workout.title : "Pierna";
+  const template = (planTemplates[plan] || []).find((exercise) => exercise.name === button.dataset.templateExercise);
+  if (!template) return;
+  const exists = workout.exercises.some((item) => normalize(item.name) === normalize(template.name));
+  if (!exists) {
+    workout.exercises.push({ ...template });
+  }
+  save();
 });
 
 document.getElementById("weightForm").addEventListener("submit", (event) => {

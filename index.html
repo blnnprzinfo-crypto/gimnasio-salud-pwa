@@ -7,9 +7,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Gimnasio" />
-    <link rel="manifest" href="./manifest.webmanifest?v=15" />
+    <link rel="manifest" href="./manifest.webmanifest?v=16" />
     <link rel="icon" href="./icons/icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=15" />
+    <link rel="stylesheet" href="./styles.css?v=16" />
     <title>Gimnasio</title>
   </head>
   <body>
@@ -55,6 +55,8 @@
             <button type="button" data-plan="Pierna">Pierna</button>
             <button type="button" data-plan="Espalda">Espalda</button>
             <button type="button" data-plan="Pecho">Pecho</button>
+            <button type="button" data-plan="Triceps">Triceps</button>
+            <button type="button" data-plan="Gluteo">Gluteo</button>
             <button type="button" data-plan="Cardio">Cardio</button>
           </div>
         </section>
@@ -155,6 +157,13 @@
             <div><strong id="weightStreak">0</strong><span>Racha peso</span></div>
           </div>
         </article>
+        <article class="panel">
+          <div class="panel-title">
+            <h2>Dias por grupo</h2>
+            <span>favoritos</span>
+          </div>
+          <div class="group-count-list" id="groupCountList"></div>
+        </article>
       </section>
 
       <section class="view" id="workoutsView">
@@ -176,13 +185,20 @@
             <span id="workoutTitleLabel">Sin entreno</span>
           </div>
           <form class="inline-form" id="workoutTitleForm">
-            <input id="workoutTitleInput" placeholder="Que toca hoy: pierna, espalda, pecho..." />
+            <input id="workoutTitleInput" placeholder="Que toca hoy: pierna, espalda, triceps..." />
             <button type="submit">Dia</button>
           </form>
+          <div class="exercise-picker-panel">
+            <div class="panel-title">
+              <h3>Marca lo que has hecho</h3>
+              <span id="exercisePickerPlan">Elige grupo</span>
+            </div>
+            <div class="exercise-picker-list" id="exercisePickerList"></div>
+          </div>
           <form class="exercise-form" id="exerciseForm">
-            <input id="exerciseName" placeholder="Ejercicio o maquina: prensa, hip thrust..." />
-            <input id="exerciseSets" inputmode="numeric" placeholder="Series: ej. 3" />
-            <input id="exerciseReps" inputmode="numeric" placeholder="Repeticiones: ej. 12" />
+            <input id="exerciseName" placeholder="Ejercicio nuevo: prensa, hip thrust, curl..." />
+            <input id="exerciseSets" inputmode="numeric" placeholder="Series hechas: ej. 3" />
+            <input id="exerciseReps" inputmode="numeric" placeholder="Reps por serie: ej. 12" />
             <input id="exerciseWeight" inputmode="decimal" placeholder="Peso o tiempo: ej. 25 kg / 17 min" />
             <button type="submit">Anadir ejercicio</button>
           </form>
@@ -243,8 +259,8 @@
         <span id="notificationMessage"></span><button id="enableNotificationsButton" type="button"></button>
         <button id="healthHelpButton" type="button"></button><button id="closeHealthDialog" type="button"></button>
       </div>
-      <p class="app-version">v15</p>
+      <p class="app-version">v16</p>
     </main>
-    <script src="./app.js?v=15"></script>
+    <script src="./app.js?v=16"></script>
   </body>
 </html>

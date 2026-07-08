@@ -294,7 +294,7 @@ h2 {
 
 .choice-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
 
@@ -303,7 +303,7 @@ h2 {
   color: var(--text);
 }
 
-.choice-grid button:first-child {
+.choice-grid button.selected {
   background: #111;
   color: #fff;
 }
@@ -562,6 +562,42 @@ h2 {
   background: var(--green);
 }
 
+.group-count-list {
+  display: grid;
+  gap: 12px;
+}
+
+.group-count-row {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.group-count-row strong,
+.group-count-row span {
+  display: block;
+}
+
+.group-count-row span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.group-count-bar {
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #edf0f4;
+}
+
+.group-count-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #111111;
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -615,6 +651,77 @@ h2 {
   display: grid;
   gap: 10px;
   margin-top: 14px;
+}
+
+.exercise-picker-panel {
+  display: grid;
+  gap: 12px;
+  margin: 14px 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #f8fafc;
+}
+
+.exercise-picker-panel h3 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.exercise-picker-list {
+  display: grid;
+  gap: 10px;
+}
+
+.exercise-pick {
+  display: grid;
+  grid-template-columns: 46px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  min-height: 64px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #ffffff;
+  color: var(--text);
+  text-align: left;
+}
+
+.exercise-pick .exercise-thumb {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+}
+
+.exercise-pick strong,
+.exercise-pick span {
+  display: block;
+}
+
+.exercise-pick span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.exercise-pick em {
+  display: grid;
+  min-width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 999px;
+  background: #111111;
+  color: #ffffff;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.exercise-pick.done {
+  border-color: #dbeafe;
+  background: #f8fbff;
+}
+
+.exercise-pick.done em {
+  background: var(--green);
 }
 
 .records-list {
