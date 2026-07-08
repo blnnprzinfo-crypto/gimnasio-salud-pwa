@@ -158,7 +158,10 @@ function render() {
 
   setText("currentWeight", `${weight.toFixed(1).replace(".0", "")} kg`);
   setText("weightProgress", `${progress}%`);
-  document.querySelector(".progress-ring").style.background = `conic-gradient(var(--green) ${progress * 3.6}deg, rgba(255,255,255,0.12) 0deg)`;
+  const progressRing = document.querySelector(".progress-ring");
+  if (progressRing) {
+    progressRing.style.background = `conic-gradient(var(--green) ${progress * 3.6}deg, rgba(255,255,255,0.12) 0deg)`;
+  }
   setText("waterSummary", `${water} / ${state.waterGoal} ml`);
   document.getElementById("waterBar").style.width = `${waterPct}%`;
   setText("waterMessage", water >= state.waterGoal ? "Objetivo de agua cumplido. Buen trabajo." : `Faltan ${state.waterGoal - water} ml para cumplir este dia.`);
@@ -172,6 +175,7 @@ function render() {
   setText("waterStreak", water >= state.waterGoal ? "1" : "0");
   setText("weightStreak", String(state.weights.length));
   setText("streakSummary", `Dia ${dayNumber}`);
+  setText("streakHero", `${state.workouts.filter((item) => item.title || item.exercises?.length).length} fire`);
   setText("workoutTitleLabel", workout.title || "Sin entreno");
   setText("todayWorkoutMini", workout.title || "Sin entreno");
   document.getElementById("workoutTitleInput").value = workout.title || "";
@@ -356,7 +360,7 @@ document.getElementById("healthHelpButton").addEventListener("click", () => {
 });
 
 document.getElementById("quickHealthButton").addEventListener("click", () => {
-  document.querySelector(".health-panel").scrollIntoView({ behavior: "smooth", block: "center" });
+  document.querySelector('[data-view="health"]').click();
 });
 
 document.getElementById("startGymTimerButton").addEventListener("click", () => {

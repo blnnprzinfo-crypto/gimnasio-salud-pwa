@@ -7,9 +7,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Gimnasio" />
-    <link rel="manifest" href="./manifest.webmanifest?v=9" />
+    <link rel="manifest" href="./manifest.webmanifest?v=10" />
     <link rel="icon" href="./icons/icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=9" />
+    <link rel="stylesheet" href="./styles.css?v=10" />
     <title>Gimnasio Salud</title>
   </head>
   <body>
@@ -17,21 +17,10 @@
       <header class="topbar">
         <div>
           <p class="eyebrow" id="dayLabel">Vuelta al gimnasio</p>
-          <h1>Gimnasio Salud</h1>
+          <h1>Hoy</h1>
         </div>
-        <button class="icon-button" id="editModulesButton" aria-label="Editar modulos">✎</button>
+        <button class="icon-button" id="editModulesButton" aria-label="Editar modulos">+</button>
       </header>
-
-      <section class="hero-panel">
-        <div>
-          <span class="soft-label">Peso actual</span>
-          <strong id="currentWeight">80 kg</strong>
-          <small>Objetivo inicial: 65 kg</small>
-        </div>
-        <div class="progress-ring" aria-label="Progreso al objetivo">
-          <span id="weightProgress">0%</span>
-        </div>
-      </section>
 
       <section class="quick-actions" aria-label="Acciones rapidas">
         <button type="button" data-water="500">Beber 500 ml</button>
@@ -40,68 +29,49 @@
         <button type="button" id="quickHealthButton">Salud</button>
       </section>
 
-      <nav class="tabs" aria-label="Vistas">
-        <button class="tab active" data-view="today">Hoy</button>
-        <button class="tab" data-view="stats">Progreso</button>
-        <button class="tab" data-view="workouts">Gimnasio</button>
-      </nav>
-
       <section class="date-strip" aria-label="Elegir dia">
         <button id="prevDayButton" type="button">Ayer</button>
         <div>
           <strong id="selectedDateLabel">Hoy</strong>
           <span id="selectedDateDetail"></span>
         </div>
-        <button id="nextDayButton" type="button">Manana</button>
+        <button id="nextDayButton" type="button">Sig.</button>
       </section>
 
       <section class="view active" id="todayView">
+        <section class="hero-grid">
+          <article class="metric-card">
+            <span>Peso</span>
+            <strong id="currentWeight">80 kg</strong>
+            <small>Objetivo 65 kg</small>
+          </article>
+          <article class="metric-card">
+            <span>Racha</span>
+            <strong id="streakHero">0</strong>
+            <small>dias activos</small>
+          </article>
+          <article class="metric-card">
+            <span>Meta</span>
+            <strong id="weightProgress">0%</strong>
+            <small>progreso</small>
+          </article>
+        </section>
+
         <article class="panel priority-panel">
           <div class="panel-title">
-            <h2>Entreno del dia</h2>
+            <h2>Entreno activo</h2>
             <span id="todayWorkoutMini">Pierna</span>
           </div>
           <button class="wide-action" id="goWorkoutButton" type="button">Abrir entrenamiento</button>
-        </article>
-
-        <article class="panel focus-panel">
-          <div class="panel-title">
-            <h2>Modo gym</h2>
-            <span id="gymTimerLabel">00:00</span>
-          </div>
-          <div class="focus-actions">
-            <button id="startGymTimerButton" type="button">Empezar</button>
-            <button id="stopGymTimerButton" type="button">Terminar</button>
-          </div>
-          <p class="message" id="gymTimerMessage">Cuenta cuanto tiempo estas entrenando hoy.</p>
-        </article>
-
-        <article class="panel health-panel">
-          <div class="panel-title">
-            <h2>Apple Salud</h2>
-            <span>Cherri</span>
-          </div>
-          <p class="message">Toca un boton y se abre el Atajo correspondiente en el iPhone.</p>
-          <div class="health-actions">
-            <a id="shortcutWaterLink" href="#">Agua</a>
-            <a id="shortcutWeightLink" href="#">Peso</a>
-            <a id="shortcutWorkoutLink" href="#">Entreno</a>
-          </div>
-          <div class="health-actions secondary-health-actions">
-            <a href="./cherri/Gym-Agua.cherri">Cherri Agua</a>
-            <a href="./cherri/Gym-Peso.cherri">Cherri Peso</a>
-            <a href="./cherri/Gym-Entreno.cherri">Cherri Entreno</a>
-          </div>
-          <button class="text-action" id="healthHelpButton" type="button">Como crear los Atajos</button>
+          <ul class="summary-list mini-summary" id="todaySummary"></ul>
         </article>
 
         <article class="panel notify-panel">
           <div class="panel-title">
-            <h2>Recordatorios</h2>
-            <span>iPhone</span>
+            <h2>Racha semanal</h2>
+            <span id="streakSummary">Dia 1</span>
           </div>
-          <button class="wide-action" id="enableNotificationsButton" type="button">Activar aviso de agua</button>
-          <p class="message" id="notificationMessage">En iPhone funciona si la app esta anadida a pantalla de inicio y Safari permite notificaciones.</p>
+          <div class="streak-colors" id="streakColors"></div>
         </article>
 
         <article class="panel">
@@ -131,19 +101,10 @@
           <p class="message" id="weightMessage">Placeholder: escribe tu peso de hoy en kg.</p>
         </article>
 
-        <article class="panel">
-          <div class="panel-title">
-            <h2>Resumen</h2>
-            <span id="streakSummary">Dia 1</span>
-          </div>
-          <ul class="summary-list" id="todaySummary"></ul>
-          <div class="streak-colors" id="streakColors"></div>
-        </article>
-
         <article class="panel" id="customModulesPanel">
           <div class="panel-title">
             <h2>Mis modulos</h2>
-            <button class="tiny-action" id="addModuleInlineButton" type="button">✎ Anadir</button>
+            <button class="tiny-action" id="addModuleInlineButton" type="button">+ Anadir</button>
           </div>
           <div class="module-list" id="moduleList"></div>
         </article>
@@ -172,6 +133,18 @@
       </section>
 
       <section class="view" id="workoutsView">
+        <article class="panel focus-panel">
+          <div class="panel-title">
+            <h2>Modo gym</h2>
+            <span id="gymTimerLabel">00:00</span>
+          </div>
+          <div class="focus-actions">
+            <button id="startGymTimerButton" type="button">Empezar</button>
+            <button id="stopGymTimerButton" type="button">Terminar</button>
+          </div>
+          <p class="message" id="gymTimerMessage">Cuenta cuanto tiempo estas entrenando hoy.</p>
+        </article>
+
         <article class="panel">
           <div class="panel-title">
             <h2>Entreno</h2>
@@ -195,6 +168,43 @@
           <div class="exercise-list" id="exerciseList"></div>
         </article>
       </section>
+
+      <section class="view" id="healthView">
+        <article class="panel health-panel">
+          <div class="panel-title">
+            <h2>Apple Salud</h2>
+            <span>Cherri</span>
+          </div>
+          <p class="message">Botones listos para Atajos. Primero exporta los Cherri y crea los atajos con los nombres exactos.</p>
+          <div class="health-actions">
+            <a id="shortcutWaterLink" href="#">Agua</a>
+            <a id="shortcutWeightLink" href="#">Peso</a>
+            <a id="shortcutWorkoutLink" href="#">Entreno</a>
+          </div>
+          <div class="health-actions secondary-health-actions">
+            <a href="./cherri/Gym-Agua.cherri">Cherri Agua</a>
+            <a href="./cherri/Gym-Peso.cherri">Cherri Peso</a>
+            <a href="./cherri/Gym-Entreno.cherri">Cherri Entreno</a>
+          </div>
+          <button class="text-action" id="healthHelpButton" type="button">Como crear los Atajos</button>
+        </article>
+
+        <article class="panel notify-panel">
+          <div class="panel-title">
+            <h2>Recordatorios</h2>
+            <span>iPhone</span>
+          </div>
+          <button class="wide-action" id="enableNotificationsButton" type="button">Activar aviso de agua</button>
+          <p class="message" id="notificationMessage">En iPhone funciona si la app esta anadida a pantalla de inicio y Safari permite notificaciones.</p>
+        </article>
+      </section>
+
+      <nav class="tabs bottom-tabs" aria-label="Vistas">
+        <button class="tab active" data-view="today">Hoy</button>
+        <button class="tab" data-view="workouts">Entreno</button>
+        <button class="tab" data-view="stats">Progreso</button>
+        <button class="tab" data-view="health">Salud</button>
+      </nav>
 
       <dialog id="moduleDialog">
         <form method="dialog" class="module-form" id="moduleForm">
@@ -235,15 +245,15 @@
         <div class="shortcut-guide">
           <p>He dejado los archivos Cherri en la app. Abrelos, pegalos en Cherri Playground y exporta los Atajos con estos nombres exactos:</p>
           <ol>
-            <li><strong>Gym Agua</strong>: recibe texto y usa "Registrar muestra de salud" → Agua.</li>
-            <li><strong>Gym Peso</strong>: recibe texto y usa "Registrar muestra de salud" → Peso.</li>
+            <li><strong>Gym Agua</strong>: recibe texto y usa "Registrar muestra de salud" a Agua.</li>
+            <li><strong>Gym Peso</strong>: recibe texto y usa "Registrar muestra de salud" a Peso.</li>
             <li><strong>Gym Entreno</strong>: recibe texto y usa "Registrar entrenamiento".</li>
           </ol>
           <p>Despues, los botones integrados en la app abriran esos Atajos con el dato preparado.</p>
         </div>
       </dialog>
-      <p class="app-version">v9</p>
+      <p class="app-version">v10</p>
     </main>
-    <script src="./app.js?v=9"></script>
+    <script src="./app.js?v=10"></script>
   </body>
 </html>

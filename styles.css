@@ -1,17 +1,17 @@
 :root {
   color-scheme: light;
-  --bg: #fff8f8;
+  --bg: #ffffff;
   --panel: #ffffff;
-  --panel-2: #fff1f2;
+  --panel-2: #fff5f5;
   --text: #18181b;
   --muted: #71717a;
-  --line: #ffd7d7;
-  --green: #e53935;
-  --blue: #ff6b6b;
+  --line: #f1d7d7;
+  --green: #d71920;
+  --blue: #ef4444;
   --orange: #f97316;
-  --red-soft: #fff0f0;
-  --cherry-dark: #9f1239;
-  --shadow: 0 14px 34px rgba(229, 57, 53, 0.1);
+  --red-soft: #fff2f2;
+  --cherry-dark: #9f0f18;
+  --shadow: 0 14px 30px rgba(147, 16, 24, 0.08);
 }
 
 * { box-sizing: border-box; }
@@ -19,9 +19,10 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(180deg, #ffffff 0%, #fff7fa 100%);
+  background: #ffffff;
   color: var(--text);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  overflow-x: hidden;
 }
 
 button, input, select {
@@ -48,9 +49,10 @@ input, select {
 }
 
 .app-shell {
-  width: min(100%, 560px);
+  width: min(100%, 390px);
   margin: 0 auto;
-  padding: max(14px, env(safe-area-inset-top)) 14px max(26px, env(safe-area-inset-bottom));
+  padding: max(14px, env(safe-area-inset-top)) 14px calc(96px + env(safe-area-inset-bottom));
+  overflow-x: hidden;
 }
 
 .topbar {
@@ -90,11 +92,63 @@ h2 {
   font-size: 24px;
 }
 
-.hero-panel, .panel {
+.hero-panel, .panel, .metric-card {
   border: 1px solid var(--line);
-  border-radius: 20px;
+  border-radius: 18px;
   background: var(--panel);
   box-shadow: var(--shadow);
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.metric-card:first-child {
+  grid-column: 1 / -1;
+}
+
+.metric-card {
+  display: grid;
+  gap: 4px;
+  min-height: 104px;
+  min-width: 0;
+  padding: 14px;
+}
+
+.metric-card span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.metric-card strong {
+  color: var(--text);
+  font-size: 24px;
+  line-height: 1;
+  word-break: keep-all;
+}
+
+.metric-card:first-child strong {
+  font-size: 32px;
+}
+
+.metric-card:nth-child(2) strong::after {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 22px;
+  margin-left: 5px;
+  border-radius: 50% 50% 48% 48%;
+  background: radial-gradient(circle at 55% 68%, #fff7ad 0 18%, #fb923c 19% 48%, #ef4444 49% 100%);
+  transform: rotate(-7deg);
+  vertical-align: -2px;
+}
+
+.metric-card small {
+  color: var(--muted);
+  font-weight: 700;
 }
 
 .hero-panel {
@@ -135,17 +189,18 @@ h2 {
 
 .quick-actions {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
-  margin: 14px 0;
+  margin: 10px 0 14px;
 }
 
 .quick-actions button {
-  min-height: 58px;
+  min-height: 54px;
   border: 1px solid var(--line);
   background: #ffffff;
   color: var(--green);
   box-shadow: var(--shadow);
+  font-size: 14px;
 }
 
 .quick-actions button:first-child,
@@ -156,9 +211,27 @@ h2 {
 
 .tabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   margin: 18px 0;
+}
+
+.bottom-tabs {
+  position: fixed;
+  z-index: 20;
+  right: auto;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 402px;
+  width: calc(100% - 28px);
+  margin: 0 auto;
+  padding: 7px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 34px rgba(24, 24, 27, 0.16);
+  backdrop-filter: blur(14px);
 }
 
 .date-strip {
@@ -196,7 +269,10 @@ h2 {
   min-height: 44px;
   background: #ffffff;
   color: var(--muted);
-  border: 1px solid var(--line);
+  border: 0;
+  border-radius: 18px;
+  font-size: 12px;
+  padding: 0 6px;
 }
 
 .tab.active {
@@ -218,7 +294,8 @@ h2 {
 }
 
 .priority-panel {
-  border-color: rgba(244, 63, 94, 0.32);
+  border-color: rgba(215, 25, 32, 0.24);
+  background: linear-gradient(180deg, #ffffff 0%, #fff7f7 100%);
 }
 
 .compact-panel {
@@ -227,6 +304,19 @@ h2 {
 
 .wide-action {
   width: 100%;
+}
+
+.mini-summary {
+  margin-top: 12px;
+}
+
+.mini-summary li {
+  padding: 10px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--muted);
 }
 
 .panel-title {
@@ -241,6 +331,9 @@ h2 {
   color: var(--muted);
   font-weight: 700;
   white-space: nowrap;
+  max-width: 42%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .bar {
@@ -292,7 +385,7 @@ h2 {
 .summary-list li, .exercise-item {
   border: 1px solid var(--line);
   border-radius: 14px;
-  background: #fffafa;
+  background: #ffffff;
   padding: 13px;
 }
 
@@ -310,15 +403,25 @@ h2 {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #ffe9e9;
+  background: #f5f5f5;
   color: #b91c1c;
   font-size: 18px;
   font-weight: 900;
 }
 
 .streak-dot.done {
-  background: linear-gradient(135deg, #ffedd5, #fecaca);
-  box-shadow: inset 0 0 0 1px #fecaca;
+  background: linear-gradient(135deg, #ffedd5, #fecaca 48%, #ef4444);
+  box-shadow: inset 0 0 0 1px #fecaca, 0 6px 12px rgba(239, 68, 68, 0.18);
+  font-size: 0;
+}
+
+.streak-dot.done::before {
+  content: "";
+  width: 14px;
+  height: 17px;
+  border-radius: 50% 50% 48% 48%;
+  background: radial-gradient(circle at 55% 68%, #fff7ad 0 18%, #fb923c 19% 48%, #ef4444 49% 100%);
+  transform: rotate(-7deg);
 }
 
 .chart {
@@ -344,7 +447,8 @@ h2 {
 
 .stats-grid div {
   border-radius: 16px;
-  background: #fffafa;
+  background: #ffffff;
+  border: 1px solid var(--line);
   padding: 14px 10px;
   text-align: center;
 }
@@ -370,7 +474,7 @@ h2 {
   gap: 5px;
   border: 1px solid var(--line);
   border-radius: 14px;
-  background: #fffafa;
+  background: #ffffff;
   color: var(--text);
   padding: 13px;
   text-align: left;
@@ -450,7 +554,7 @@ h2 {
   gap: 10px;
   border: 1px solid var(--line);
   border-radius: 16px;
-  background: #fffafa;
+  background: #ffffff;
   padding: 13px;
 }
 
@@ -607,7 +711,21 @@ dialog::backdrop {
 
 .app-version {
   margin: 18px 0 0;
-  color: rgba(255,255,255,0.28);
+  color: #d4d4d8;
   font-size: 11px;
   text-align: center;
+}
+
+@media (max-width: 380px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-actions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .health-actions {
+    grid-template-columns: 1fr;
+  }
 }
