@@ -19,7 +19,7 @@
           <p class="eyebrow">Dia 1 - vuelta al gimnasio</p>
           <h1>Gimnasio Salud</h1>
         </div>
-        <button class="icon-button" id="installHelpButton" aria-label="Instalar">+</button>
+        <button class="icon-button" id="editModulesButton" aria-label="Editar modulos">✎</button>
       </header>
 
       <section class="hero-panel">
@@ -74,6 +74,14 @@
           </div>
           <ul class="summary-list" id="todaySummary"></ul>
         </article>
+
+        <article class="panel" id="customModulesPanel">
+          <div class="panel-title">
+            <h2>Mis modulos</h2>
+            <button class="tiny-action" id="addModuleInlineButton" type="button">✎ Anadir</button>
+          </div>
+          <div class="module-list" id="moduleList"></div>
+        </article>
       </section>
 
       <section class="view" id="statsView">
@@ -106,10 +114,36 @@
         </article>
       </section>
 
-      <dialog id="installDialog">
-        <h2>Guardarla en el iPhone</h2>
-        <p>Cuando esta app este subida a una URL publica: abre Safari, toca compartir y elige "Anadir a pantalla de inicio".</p>
-        <button id="closeInstallDialog">Entendido</button>
+      <dialog id="moduleDialog">
+        <form method="dialog" class="module-form" id="moduleForm">
+          <div class="dialog-title">
+            <h2>Nuevo modulo</h2>
+            <button class="ghost-button" id="closeModuleDialog" type="button">Cerrar</button>
+          </div>
+          <label>
+            Que quieres seguir
+            <input id="moduleTitle" placeholder="Ej: Sueno, pasos, medidas, comida" />
+          </label>
+          <label>
+            Tipo
+            <select id="moduleType">
+              <option value="numero">Numero</option>
+              <option value="check">Hecho / no hecho</option>
+              <option value="texto">Nota rapida</option>
+            </select>
+          </label>
+          <label>
+            Placeholder
+            <input id="modulePlaceholder" placeholder="Ej: 8 h, 10.000 pasos, cintura 82 cm" />
+          </label>
+          <div class="preset-row" aria-label="Plantillas rapidas">
+            <button type="button" data-preset="Sueno|numero|Ej: 7.5 h">Sueno</button>
+            <button type="button" data-preset="Pasos|numero|Ej: 8500">Pasos</button>
+            <button type="button" data-preset="Medidas|texto|Ej: cintura 82 cm">Medidas</button>
+            <button type="button" data-preset="Suplementos|check|Ej: creatina tomada">Suplementos</button>
+          </div>
+          <button type="submit">Crear modulo</button>
+        </form>
       </dialog>
     </main>
     <script src="./app.js"></script>
