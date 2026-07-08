@@ -212,7 +212,7 @@ function render() {
   setText("waterStreak", water >= state.waterGoal ? "1" : "0");
   setText("weightStreak", String(state.weights.length));
   setText("streakSummary", `Dia ${dayNumber}`);
-  setText("streakHero", `${state.workouts.filter((item) => item.title || item.exercises?.length).length} fire`);
+  setText("streakHero", `${state.workouts.filter((item) => item.title || item.exercises?.length).length}`);
   const topRecord = records()[0];
   setText("recordHero", topRecord ? `${topRecord.kg} kg` : "0 kg");
   setText("workoutTitleLabel", workout.title || "Sin entreno");
@@ -285,13 +285,16 @@ function updateHealthLinks(weight, water, workout) {
   document.getElementById("shortcutWaterLink").href = shortcutUrl("Gym Agua", String(water || 500));
   document.getElementById("shortcutWeightLink").href = shortcutUrl("Gym Peso", String(weight));
   document.getElementById("shortcutWorkoutLink").href = shortcutUrl("Gym Entreno", `${selectedDate}|${workout.title || "Entreno"}|${workout.exercises?.length || 0} ejercicios`);
+  [250, 500, 750, 1000].forEach((ml) => {
+    document.getElementById(`shortcutWater${ml}Link`).href = shortcutUrl("Gym Agua", String(ml));
+  });
 }
 
 function renderStreakDots() {
   const days = Array.from({ length: 7 }, (_, index) => addDays(todayKey(), index - 6));
   document.getElementById("streakColors").innerHTML = days.map((date) => {
     const trained = state.workouts.some((item) => item.date === date && (item.title || item.exercises?.length));
-    return `<span class="streak-dot ${trained ? "done" : ""}" title="${date}">${trained ? "ðŸ”¥" : "Â·"}</span>`;
+    return `<span class="streak-dot ${trained ? "done" : ""}" title="${date}">${trained ? "🔥" : "·"}</span>`;
   }).join("");
 }
 
@@ -309,7 +312,7 @@ function renderHistory() {
     return `
       <button class="history-item" data-go-date="${date}" type="button">
         <strong>${date === todayKey() ? "Hoy" : date === yesterdayKey() ? "Ayer" : formatDate(date)}</strong>
-        <span>${workout?.title || "Sin entreno"} Â· ${workout?.exercises?.length || 0} ejercicios Â· ${water} ml agua${weight ? ` Â· ${weight.value} kg` : ""}</span>
+        <span>${workout?.title || "Sin entreno"} · ${workout?.exercises?.length || 0} ejercicios · ${water} ml agua${weight ? ` · ${weight.value} kg` : ""}</span>
       </button>`;
   }).join("") || `<div class="module-empty">Aun no hay historial. Empieza registrando hoy.</div>`;
 }
@@ -558,3 +561,4 @@ render();
 if (state.gymTimer?.active) {
   gymTimerInterval = setInterval(renderGymTimer, 1000);
 }
+

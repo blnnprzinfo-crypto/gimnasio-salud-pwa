@@ -7,9 +7,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Gimnasio" />
-    <link rel="manifest" href="./manifest.webmanifest?v=11" />
+    <link rel="manifest" href="./manifest.webmanifest?v=12" />
     <link rel="icon" href="./icons/icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=11" />
+    <link rel="stylesheet" href="./styles.css?v=12" />
     <title>Gimnasio Salud</title>
   </head>
   <body>
@@ -23,10 +23,10 @@
       </header>
 
       <section class="quick-actions" aria-label="Acciones rapidas">
-        <button type="button" data-water="500">Beber 500 ml</button>
-        <button type="button" id="quickWeightButton">Peso</button>
-        <button type="button" id="quickWorkoutButton">Entreno</button>
-        <button type="button" id="quickHealthButton">Salud</button>
+        <button type="button" data-water="500"><span>💧</span> 500 ml</button>
+        <button type="button" id="quickWeightButton"><span>⚖️</span> Peso</button>
+        <button type="button" id="quickWorkoutButton"><span>🏋️</span> Entreno</button>
+        <button type="button" id="quickHealthButton"><span>❤️</span> Salud</button>
       </section>
 
       <section class="date-strip" aria-label="Elegir dia">
@@ -52,12 +52,12 @@
 
         <section class="hero-grid">
           <article class="metric-card">
-            <span>Racha</span>
+            <span>🔥 Racha</span>
             <strong id="streakHero">0</strong>
             <small>dias activos</small>
           </article>
           <article class="metric-card">
-            <span>Record</span>
+            <span>🏆 Record</span>
             <strong id="recordHero">0 kg</strong>
             <small>mejor marca</small>
           </article>
@@ -65,7 +65,7 @@
 
         <article class="panel priority-panel">
           <div class="panel-title">
-            <h2>Entreno activo</h2>
+            <h2>🏋️ Entreno activo</h2>
             <span id="todayWorkoutMini">Pierna</span>
           </div>
           <button class="wide-action" id="goWorkoutButton" type="button">Abrir entrenamiento</button>
@@ -74,7 +74,7 @@
 
         <article class="panel notify-panel">
           <div class="panel-title">
-            <h2>Racha semanal</h2>
+            <h2>🔥 Racha semanal</h2>
             <span id="streakSummary">Dia 1</span>
           </div>
           <div class="streak-colors" id="streakColors"></div>
@@ -82,7 +82,7 @@
 
         <article class="panel">
           <div class="panel-title">
-            <h2>Agua</h2>
+            <h2>💧 Agua</h2>
             <span id="waterSummary">0 / 2000 ml</span>
           </div>
           <div class="bar"><span id="waterBar"></span></div>
@@ -92,12 +92,18 @@
             <button data-water="750">+750 ml</button>
             <button data-water="1000">+1 L</button>
           </div>
+          <div class="shortcut-water-grid" aria-label="Enviar agua a Apple Salud">
+            <a id="shortcutWater250Link" href="#">Salud 250</a>
+            <a id="shortcutWater500Link" href="#">Salud 500</a>
+            <a id="shortcutWater750Link" href="#">Salud 750</a>
+            <a id="shortcutWater1000Link" href="#">Salud 1 L</a>
+          </div>
           <p class="message" id="waterMessage">Empieza con 500 ml. Facil, rapido y cuenta.</p>
         </article>
 
         <article class="panel compact-panel">
           <div class="panel-title">
-            <h2>Peso</h2>
+            <h2>⚖️ Peso</h2>
             <span id="weightDelta">Sin cambios</span>
           </div>
           <form class="inline-form" id="weightForm">
@@ -118,7 +124,7 @@
 
       <section class="view" id="statsView">
         <article class="panel">
-          <h2>Evolucion de peso</h2>
+          <h2>⚖️ Evolucion de peso</h2>
           <div class="chart" id="weightChart"></div>
         </article>
         <article class="panel">
@@ -141,7 +147,7 @@
       <section class="view" id="workoutsView">
         <article class="panel focus-panel">
           <div class="panel-title">
-            <h2>Modo gym</h2>
+            <h2>⏱️ Modo gym</h2>
             <span id="gymTimerLabel">00:00</span>
           </div>
           <div class="focus-actions">
@@ -153,7 +159,7 @@
 
         <article class="panel">
           <div class="panel-title">
-            <h2>Entreno</h2>
+            <h2>🏋️ Entreno</h2>
             <span id="workoutTitleLabel">Sin entreno</span>
           </div>
           <form class="inline-form" id="workoutTitleForm">
@@ -172,7 +178,7 @@
 
         <article class="panel">
           <div class="panel-title">
-            <h2>Mis records</h2>
+            <h2>🏆 Mis records</h2>
             <span>Pesos maximos</span>
           </div>
           <div class="records-list" id="recordsList"></div>
@@ -182,7 +188,7 @@
       <section class="view" id="healthView">
         <article class="panel health-panel">
           <div class="panel-title">
-            <h2>Apple Salud</h2>
+            <h2>❤️ Apple Salud</h2>
             <span>Cherri</span>
           </div>
           <p class="message">Botones listos para Atajos. Primero exporta los Cherri y crea los atajos con los nombres exactos.</p>
@@ -210,10 +216,10 @@
       </section>
 
       <nav class="tabs bottom-tabs" aria-label="Vistas">
-        <button class="tab active" data-view="today">Hoy</button>
-        <button class="tab" data-view="workouts">Entreno</button>
-        <button class="tab" data-view="stats">Progreso</button>
-        <button class="tab" data-view="health">Salud</button>
+        <button class="tab active" data-view="today"><span>🏠</span>Hoy</button>
+        <button class="tab" data-view="workouts"><span>🏋️</span>Entreno</button>
+        <button class="tab" data-view="stats"><span>📈</span>Progreso</button>
+        <button class="tab" data-view="health"><span>❤️</span>Salud</button>
       </nav>
 
       <dialog id="moduleDialog">
@@ -262,8 +268,8 @@
           <p>Despues, los botones integrados en la app abriran esos Atajos con el dato preparado.</p>
         </div>
       </dialog>
-      <p class="app-version">v11</p>
+      <p class="app-version">v12</p>
     </main>
-    <script src="./app.js?v=11"></script>
+    <script src="./app.js?v=12"></script>
   </body>
 </html>
