@@ -1,4 +1,4 @@
-const dateKey = (date = new Date()) => {
+﻿const dateKey = (date = new Date()) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
@@ -140,6 +140,43 @@ const setText = (id, text) => {
   document.getElementById(id).textContent = text;
 };
 
+const parseKg = (value = "") => {
+  const match = String(value).replace(",", ".").match(/(\d+(?:\.\d+)?)\s*kg/i);
+  return match ? Number(match[1]) : 0;
+};
+
+const exerciseKind = (name = "") => {
+  const clean = name.toLowerCase();
+  if (clean.includes("jalon") || clean.includes("pull")) return "lat";
+  if (clean.includes("remo")) return "row";
+  if (clean.includes("biceps") || clean.includes("curl")) return "cable";
+  if (clean.includes("hip") || clean.includes("glute")) return "hip";
+  if (clean.includes("peso muerto")) return "deadlift";
+  if (clean.includes("abdu")) return "abductor";
+  if (clean.includes("prensa") || clean.includes("pierna")) return "leg";
+  if (clean.includes("cinta") || clean.includes("correr")) return "run";
+  if (clean.includes("escalera")) return "stairs";
+  return "machine";
+};
+
+const allExercises = () => state.workouts.flatMap((workout) =>
+  (workout.exercises || []).map((exercise) => ({ ...exercise, date: workout.date, workout: workout.title }))
+);
+
+const records = () => {
+  const byName = new Map();
+  allExercises().forEach((exercise) => {
+    const kg = parseKg(exercise.value);
+    if (!kg) return;
+    const key = exercise.name.toLowerCase().trim();
+    const current = byName.get(key);
+    if (!current || kg > current.kg) {
+      byName.set(key, { ...exercise, kg });
+    }
+  });
+  return [...byName.values()].sort((a, b) => b.kg - a.kg);
+};
+
 function render() {
   const weight = latestWeight();
   const totalToLose = 80 - state.targetWeight;
@@ -176,6 +213,8 @@ function render() {
   setText("weightStreak", String(state.weights.length));
   setText("streakSummary", `Dia ${dayNumber}`);
   setText("streakHero", `${state.workouts.filter((item) => item.title || item.exercises?.length).length} fire`);
+  const topRecord = records()[0];
+  setText("recordHero", topRecord ? `${topRecord.kg} kg` : "0 kg");
   setText("workoutTitleLabel", workout.title || "Sin entreno");
   setText("todayWorkoutMini", workout.title || "Sin entreno");
   document.getElementById("workoutTitleInput").value = workout.title || "";
@@ -190,7 +229,7 @@ function render() {
 
   document.getElementById("exerciseList").innerHTML = workout.exercises.map((item) => (
     `<div class="exercise-item">
-      <div class="exercise-thumb">${item.photo ? `<img src="${item.photo}" alt="">` : "🏋"}</div>
+      <div class="exercise-thumb exercise-thumb-${exerciseKind(item.name)}" aria-hidden="true"></div>
       <div><strong>${item.name}</strong><span>${[
         item.sets ? `${item.sets} series` : "",
         item.reps ? `${item.reps} reps` : "",
@@ -198,6 +237,8 @@ function render() {
       ].filter(Boolean).join(" · ")}</span></div>
     </div>`
   )).join("");
+
+  renderRecords();
 
   renderModules();
   renderHistory();
@@ -222,6 +263,20 @@ function renderGymTimer() {
   setText("gymTimerMessage", active ? "Modo gym activo. Cuando acabes, toca Terminar." : "Cuenta cuanto tiempo estas entrenando hoy.");
 }
 
+function renderRecords() {
+  const list = document.getElementById("recordsList");
+  const best = records();
+  list.innerHTML = best.length ? best.slice(0, 8).map((item) => `
+    <div class="record-item">
+      <div class="exercise-thumb exercise-thumb-${exerciseKind(item.name)}" aria-hidden="true"></div>
+      <div>
+        <strong>${item.name}</strong>
+        <span>${item.kg} kg · ${item.workout || "Entreno"} · ${item.date}</span>
+      </div>
+    </div>
+  `).join("") : `<div class="module-empty">Cuando guardes pesos en kg, aqui apareceran tus records por ejercicio.</div>`;
+}
+
 function shortcutUrl(name, text) {
   return `shortcuts://run-shortcut?name=${encodeURIComponent(name)}&input=text&text=${encodeURIComponent(text)}`;
 }
@@ -236,7 +291,7 @@ function renderStreakDots() {
   const days = Array.from({ length: 7 }, (_, index) => addDays(todayKey(), index - 6));
   document.getElementById("streakColors").innerHTML = days.map((date) => {
     const trained = state.workouts.some((item) => item.date === date && (item.title || item.exercises?.length));
-    return `<span class="streak-dot ${trained ? "done" : ""}" title="${date}">${trained ? "🔥" : "·"}</span>`;
+    return `<span class="streak-dot ${trained ? "done" : ""}" title="${date}">${trained ? "ðŸ”¥" : "Â·"}</span>`;
   }).join("");
 }
 
@@ -254,7 +309,7 @@ function renderHistory() {
     return `
       <button class="history-item" data-go-date="${date}" type="button">
         <strong>${date === todayKey() ? "Hoy" : date === yesterdayKey() ? "Ayer" : formatDate(date)}</strong>
-        <span>${workout?.title || "Sin entreno"} · ${workout?.exercises?.length || 0} ejercicios · ${water} ml agua${weight ? ` · ${weight.value} kg` : ""}</span>
+        <span>${workout?.title || "Sin entreno"} Â· ${workout?.exercises?.length || 0} ejercicios Â· ${water} ml agua${weight ? ` Â· ${weight.value} kg` : ""}</span>
       </button>`;
   }).join("") || `<div class="module-empty">Aun no hay historial. Empieza registrando hoy.</div>`;
 }
@@ -326,20 +381,17 @@ document.getElementById("exerciseForm").addEventListener("submit", async (event)
   const sets = document.getElementById("exerciseSets");
   const reps = document.getElementById("exerciseReps");
   const value = document.getElementById("exerciseWeight");
-  const photo = document.getElementById("exercisePhoto");
   if (!name.value.trim() || !value.value.trim()) return;
   ensureWorkout().exercises.push({
     name: name.value.trim(),
     sets: sets.value.trim(),
     reps: reps.value.trim(),
-    value: value.value.trim(),
-    photo: await fileToDataUrl(photo.files?.[0])
+    value: value.value.trim()
   });
   name.value = "";
   sets.value = "";
   reps.value = "";
   value.value = "";
-  photo.value = "";
   save();
 });
 

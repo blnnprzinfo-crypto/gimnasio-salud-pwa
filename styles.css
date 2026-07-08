@@ -105,10 +105,6 @@ h2 {
   gap: 10px;
 }
 
-.metric-card:first-child {
-  grid-column: 1 / -1;
-}
-
 .metric-card {
   display: grid;
   gap: 4px;
@@ -130,11 +126,7 @@ h2 {
   word-break: keep-all;
 }
 
-.metric-card:first-child strong {
-  font-size: 32px;
-}
-
-.metric-card:nth-child(2) strong::after {
+.metric-card:first-child strong::after {
   content: "";
   display: inline-block;
   width: 18px;
@@ -156,6 +148,8 @@ h2 {
   align-items: center;
   justify-content: space-between;
   padding: 20px;
+  border-color: rgba(215, 25, 32, 0.2);
+  background: linear-gradient(180deg, #ffffff 0%, #fff7f7 100%);
 }
 
 .hero-panel strong {
@@ -174,7 +168,7 @@ h2 {
   width: 94px;
   height: 94px;
   border-radius: 50%;
-  background: conic-gradient(var(--green) 0deg, rgba(255,255,255,0.12) 0deg);
+  background: conic-gradient(var(--green) 0deg, #ffe2e2 0deg);
 }
 
 .progress-ring span {
@@ -494,11 +488,35 @@ h2 {
   margin-top: 14px;
 }
 
+.records-list {
+  display: grid;
+  gap: 10px;
+}
+
 .exercise-item {
   display: grid;
   grid-template-columns: 52px 1fr;
   gap: 12px;
   align-items: center;
+}
+
+.record-item {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 13px;
+}
+
+.record-item strong {
+  display: block;
+}
+
+.record-item span {
+  color: var(--muted);
 }
 
 .exercise-thumb {
@@ -512,12 +530,61 @@ h2 {
   color: var(--green);
   font-size: 22px;
   font-weight: 900;
+  position: relative;
+  border: 1px solid #ffd1d1;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.42), rgba(255,255,255,0)),
+    linear-gradient(135deg, #fee2e2, #ef4444);
 }
 
-.exercise-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.exercise-thumb::before,
+.exercise-thumb::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  background: #ffffff;
+  opacity: 0.92;
+}
+
+.exercise-thumb::before {
+  width: 27px;
+  height: 5px;
+  transform: rotate(-28deg);
+}
+
+.exercise-thumb::after {
+  width: 5px;
+  height: 30px;
+  transform: rotate(28deg);
+}
+
+.exercise-thumb-lat::before { width: 30px; top: 14px; transform: rotate(0deg); }
+.exercise-thumb-lat::after { height: 30px; top: 14px; transform: rotate(0deg); }
+.exercise-thumb-row::before { width: 32px; transform: rotate(0deg); }
+.exercise-thumb-row::after { height: 18px; transform: rotate(90deg); }
+.exercise-thumb-cable::before { width: 6px; height: 34px; transform: rotate(0deg); }
+.exercise-thumb-cable::after { width: 25px; height: 5px; top: 31px; transform: rotate(0deg); }
+.exercise-thumb-hip::before { width: 34px; top: 32px; transform: rotate(0deg); }
+.exercise-thumb-hip::after { width: 24px; height: 8px; top: 20px; transform: rotate(-20deg); }
+.exercise-thumb-deadlift::before { width: 34px; top: 32px; transform: rotate(0deg); }
+.exercise-thumb-deadlift::after { width: 8px; height: 24px; transform: rotate(0deg); }
+.exercise-thumb-abductor::before { width: 24px; height: 7px; left: 8px; transform: rotate(28deg); }
+.exercise-thumb-abductor::after { width: 24px; height: 7px; right: 8px; transform: rotate(-28deg); }
+.exercise-thumb-leg::before { width: 30px; top: 31px; transform: rotate(-12deg); }
+.exercise-thumb-leg::after { width: 20px; height: 8px; top: 18px; transform: rotate(-12deg); }
+.exercise-thumb-run::before { width: 30px; top: 34px; transform: rotate(0deg); }
+.exercise-thumb-run::after { width: 22px; height: 5px; top: 25px; transform: rotate(-22deg); }
+.exercise-thumb-stairs::before { width: 30px; height: 5px; top: 18px; left: 11px; transform: rotate(0deg); box-shadow: 0 9px 0 #fff, 0 18px 0 #fff; }
+.exercise-thumb-stairs::after { display: none; }
+
+.exercise-thumb-machine::before {
+  width: 28px;
+  transform: rotate(0deg);
+}
+
+.exercise-thumb-machine::after {
+  height: 26px;
+  transform: rotate(0deg);
 }
 
 .exercise-item strong, .module-item strong {

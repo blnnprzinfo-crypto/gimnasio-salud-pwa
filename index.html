@@ -7,9 +7,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Gimnasio" />
-    <link rel="manifest" href="./manifest.webmanifest?v=10" />
+    <link rel="manifest" href="./manifest.webmanifest?v=11" />
     <link rel="icon" href="./icons/icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=10" />
+    <link rel="stylesheet" href="./styles.css?v=11" />
     <title>Gimnasio Salud</title>
   </head>
   <body>
@@ -39,21 +39,27 @@
       </section>
 
       <section class="view active" id="todayView">
-        <section class="hero-grid">
-          <article class="metric-card">
-            <span>Peso</span>
+        <section class="hero-panel">
+          <div>
+            <span class="soft-label">Peso actual</span>
             <strong id="currentWeight">80 kg</strong>
-            <small>Objetivo 65 kg</small>
-          </article>
+            <small>Objetivo inicial: 65 kg</small>
+          </div>
+          <div class="progress-ring" aria-label="Progreso al objetivo">
+            <span id="weightProgress">0%</span>
+          </div>
+        </section>
+
+        <section class="hero-grid">
           <article class="metric-card">
             <span>Racha</span>
             <strong id="streakHero">0</strong>
             <small>dias activos</small>
           </article>
           <article class="metric-card">
-            <span>Meta</span>
-            <strong id="weightProgress">0%</strong>
-            <small>progreso</small>
+            <span>Record</span>
+            <strong id="recordHero">0 kg</strong>
+            <small>mejor marca</small>
           </article>
         </section>
 
@@ -159,13 +165,17 @@
             <input id="exerciseSets" inputmode="numeric" placeholder="Series, ej: 3" />
             <input id="exerciseReps" inputmode="numeric" placeholder="Reps, ej: 12" />
             <input id="exerciseWeight" inputmode="decimal" placeholder="Kg o minutos, ej: 25 kg / 17 min" />
-            <label class="photo-picker">
-              Foto de maquina
-              <input id="exercisePhoto" type="file" accept="image/*" />
-            </label>
             <button type="submit">Anadir</button>
           </form>
           <div class="exercise-list" id="exerciseList"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-title">
+            <h2>Mis records</h2>
+            <span>Pesos maximos</span>
+          </div>
+          <div class="records-list" id="recordsList"></div>
         </article>
       </section>
 
@@ -252,8 +262,8 @@
           <p>Despues, los botones integrados en la app abriran esos Atajos con el dato preparado.</p>
         </div>
       </dialog>
-      <p class="app-version">v10</p>
+      <p class="app-version">v11</p>
     </main>
-    <script src="./app.js?v=10"></script>
+    <script src="./app.js?v=11"></script>
   </body>
 </html>
