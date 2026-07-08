@@ -52,6 +52,28 @@ const legDayExercises = [
   { name: "Escaleras", value: "2,5 min", sets: "", reps: "" }
 ];
 
+const planTemplates = {
+  Pierna: legDayExercises,
+  Espalda: [
+    { name: "Jalon al pecho", value: "30 kg", sets: "", reps: "" },
+    { name: "Biceps en polea curl", value: "20 kg", sets: "", reps: "" },
+    { name: "Remo", value: "25 kg", sets: "", reps: "" },
+    { name: "Pull down", value: "20 kg", sets: "", reps: "" },
+    { name: "Correr cinta", value: "17 min", sets: "", reps: "" }
+  ],
+  Pecho: [
+    { name: "Press banca", value: "0 kg", sets: "", reps: "" },
+    { name: "Press inclinado", value: "0 kg", sets: "", reps: "" },
+    { name: "Aperturas", value: "0 kg", sets: "", reps: "" },
+    { name: "Fondos asistidos", value: "0 kg", sets: "", reps: "" }
+  ],
+  Cardio: [
+    { name: "Correr cinta", value: "0 min", sets: "", reps: "" },
+    { name: "Escaleras", value: "0 min", sets: "", reps: "" },
+    { name: "Bicicleta", value: "0 min", sets: "", reps: "" }
+  ]
+};
+
 const load = () => {
   const saved = localStorage.getItem("gym-pwa-data");
   const data = saved ? JSON.parse(saved) : seed;
@@ -156,6 +178,10 @@ const allExercises = () => state.workouts.flatMap((workout) =>
   (workout.exercises || []).map((exercise) => ({ ...exercise, date: workout.date, workout: workout.title }))
 );
 
+const exerciseHistory = (name) => allExercises()
+  .filter((exercise) => exercise.name.toLowerCase().trim() === name.toLowerCase().trim() && parseKg(exercise.value))
+  .sort((a, b) => a.date.localeCompare(b.date));
+
 const records = () => {
   const byName = new Map();
   allExercises().forEach((exercise) => {
@@ -233,6 +259,7 @@ function render() {
 
   renderRecords();
   renderHomeRecords();
+  renderFeaturedExercise(workout);
   renderCalendar();
 
   renderModules();
@@ -256,6 +283,37 @@ function renderGymTimer() {
   const seconds = Math.floor((elapsed % 60000) / 1000);
   setText("gymTimerLabel", `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`);
   setText("gymTimerMessage", active ? "Modo gym activo. Cuando acabes, toca Terminar." : "Cuenta cuanto tiempo estas entrenando hoy.");
+}
+
+function renderFeaturedExercise(workout) {
+  const featured = workout.exercises.find((item) => parseKg(item.value)) || workout.exercises[0] || records()[0];
+  const title = featured?.name || "Elige un ejercicio";
+  const history = featured ? exerciseHistory(featured.name) : [];
+  const values = history.length ? history.map((item) => item.kg) : [0, 0, 0, 0, 0, 0];
+  const max = Math.max(...values, 1);
+  const min = Math.min(...values, 0);
+  const range = Math.max(1, max - min);
+
+  setText("featuredExerciseTitle", workout.title ? `${workout.title}: ejercicio destacado` : "Progreso de fuerza");
+  setText("featuredExerciseName", title);
+  setText("featuredExerciseDate", featured?.date || "nuevo");
+  setText("featuredExercisePr", featured?.kg ? `${featured.kg} kg` : "0 kg");
+  document.getElementById("featuredMachineFigure").className = `machine-figure machine-${exerciseKind(title)}`;
+
+  document.getElementById("strengthChart").innerHTML = values.map((value, index) => {
+    const y = 82 - ((value - min) / range) * 58;
+    const x = 8 + index * (84 / Math.max(1, values.length - 1));
+    return `<span class="chart-point" style="left:${x}%; top:${y}%"></span>`;
+  }).join("") + values.slice(1).map((value, index) => {
+    const prev = values[index];
+    const x1 = 8 + index * (84 / Math.max(1, values.length - 1));
+    const x2 = 8 + (index + 1) * (84 / Math.max(1, values.length - 1));
+    const y1 = 82 - ((prev - min) / range) * 58;
+    const y2 = 82 - ((value - min) / range) * 58;
+    const length = Math.hypot(x2 - x1, y2 - y1);
+    const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+    return `<span class="chart-line" style="left:${x1}%; top:${y1}%; width:${length}%; transform:rotate(${angle}deg)"></span>`;
+  }).join("");
 }
 
 function renderHomeRecords() {
@@ -393,6 +451,7 @@ document.querySelectorAll("[data-plan]").forEach((button) => {
   button.addEventListener("click", () => {
     const workout = ensureWorkout();
     workout.title = button.dataset.plan;
+    workout.exercises = (planTemplates[button.dataset.plan] || []).map((exercise) => ({ ...exercise }));
     save();
     document.querySelector('[data-view="workouts"]').click();
   });

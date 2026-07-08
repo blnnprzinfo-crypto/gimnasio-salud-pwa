@@ -7,9 +7,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Gimnasio" />
-    <link rel="manifest" href="./manifest.webmanifest?v=13" />
+    <link rel="manifest" href="./manifest.webmanifest?v=14" />
     <link rel="icon" href="./icons/icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=13" />
+    <link rel="stylesheet" href="./styles.css?v=14" />
     <title>Gimnasio Salud</title>
   </head>
   <body>
@@ -17,27 +17,16 @@
       <header class="topbar">
         <div>
           <p class="eyebrow" id="dayLabel">Vuelta al gimnasio</p>
-          <h1>Dashboard</h1>
+          <h1>Gimnasio</h1>
         </div>
         <button class="icon-button" id="editModulesButton" aria-label="Editar modulos">+</button>
       </header>
-
-      <section class="question-panel panel">
-        <p class="coach-kicker">Pregunta rapida</p>
-        <h2>Que toca hoy?</h2>
-        <div class="choice-grid" aria-label="Elegir entreno de hoy">
-          <button type="button" data-plan="Pierna">Pierna</button>
-          <button type="button" data-plan="Espalda">Espalda</button>
-          <button type="button" data-plan="Pecho">Pecho</button>
-          <button type="button" data-plan="Cardio">Cardio</button>
-        </div>
-      </section>
 
       <section class="quick-actions" aria-label="Acciones rapidas">
         <button type="button" data-water="500" data-health-shortcut="water"><span>&#128167;</span> 500 ml</button>
         <button type="button" id="quickWeightButton"><span>&#9878;&#65039;</span> Peso</button>
         <button type="button" id="quickWorkoutButton"><span>&#127947;&#65039;</span> Entreno</button>
-        <button type="button" id="quickHealthButton"><span>&#10084;&#65039;</span> Salud</button>
+        <button type="button" id="quickHealthButton"><span>&#9881;&#65039;</span> Atajos</button>
       </section>
 
       <section class="date-strip" aria-label="Elegir dia">
@@ -50,14 +39,6 @@
       </section>
 
       <section class="view active" id="todayView">
-        <article class="panel calendar-panel">
-          <div class="panel-title">
-            <h2>Calendario</h2>
-            <span>7 dias</span>
-          </div>
-          <div class="calendar-strip" id="calendarStrip"></div>
-        </article>
-
         <section class="hero-panel">
           <div>
             <span class="soft-label">Peso actual</span>
@@ -68,6 +49,40 @@
             <span id="weightProgress">0%</span>
           </div>
         </section>
+
+        <section class="question-panel panel">
+          <p class="coach-kicker">Plan de hoy</p>
+          <h2>Que toca entrenar?</h2>
+          <div class="choice-grid" aria-label="Elegir entreno de hoy">
+            <button type="button" data-plan="Pierna">Pierna</button>
+            <button type="button" data-plan="Espalda">Espalda</button>
+            <button type="button" data-plan="Pecho">Pecho</button>
+            <button type="button" data-plan="Cardio">Cardio</button>
+          </div>
+        </section>
+
+        <article class="panel exercise-progress-panel">
+          <div class="panel-title">
+            <h2 id="featuredExerciseTitle">Progreso de fuerza</h2>
+            <span id="featuredExerciseDate">PR</span>
+          </div>
+          <div class="exercise-visual-card">
+            <div class="machine-figure" id="featuredMachineFigure" aria-hidden="true"></div>
+            <div class="pr-badge">PR</div>
+          </div>
+          <div class="weight-chart-card">
+            <div class="pr-value"><strong id="featuredExercisePr">0 kg</strong><span id="featuredExerciseName">Sin ejercicio</span></div>
+            <div class="strength-chart" id="strengthChart"></div>
+          </div>
+        </article>
+
+        <article class="panel calendar-panel">
+          <div class="panel-title">
+            <h2>Calendario</h2>
+            <span>7 dias</span>
+          </div>
+          <div class="calendar-strip" id="calendarStrip"></div>
+        </article>
 
         <section class="hero-grid">
           <article class="metric-card">
@@ -84,7 +99,7 @@
 
         <article class="panel pr-panel">
           <div class="panel-title">
-            <h2>Dashboard PR</h2>
+            <h2>Records por ejercicio</h2>
             <span>mejores marcas</span>
           </div>
           <div class="records-list compact-records" id="homeRecordsList"></div>
@@ -111,7 +126,7 @@
             <button data-water="750" data-health-shortcut="water">+750 ml</button>
             <button data-water="1000" data-health-shortcut="water">+1 L</button>
           </div>
-          <div class="shortcut-water-grid" aria-label="Enviar agua a Apple Salud">
+          <div class="shortcut-water-grid" aria-label="Enviar agua con Atajos">
             <a id="shortcutWater250Link" href="#">Salud 250</a>
             <a id="shortcutWater500Link" href="#">Salud 500</a>
             <a id="shortcutWater750Link" href="#">Salud 750</a>
@@ -211,8 +226,8 @@
       <section class="view" id="healthView">
         <article class="panel health-panel">
           <div class="panel-title">
-            <h2>&#10084;&#65039; Apple Salud</h2>
-            <span>Atajos</span>
+            <h2>Atajos del iPhone</h2>
+            <span>iPhone</span>
           </div>
           <p class="message">Los botones abren Atajos en iPhone. El de agua recibe ml: 250, 500, 750 o 1000.</p>
           <div class="health-actions">
@@ -249,9 +264,9 @@
 
       <nav class="tabs bottom-tabs" aria-label="Vistas">
         <button class="tab active" data-view="today"><span>&#127968;</span>Hoy</button>
-        <button class="tab" data-view="workouts"><span>&#127947;&#65039;</span>Entreno</button>
+        <button class="tab" data-view="workouts"><span>&#127947;&#65039;</span>Ejercicios</button>
         <button class="tab" data-view="stats"><span>&#128200;</span>Progreso</button>
-        <button class="tab" data-view="health"><span>&#10084;&#65039;</span>Salud</button>
+        <button class="tab" data-view="health"><span>&#9881;&#65039;</span>Atajos</button>
       </nav>
 
       <dialog id="moduleDialog">
@@ -287,7 +302,7 @@
 
       <dialog id="healthDialog">
         <div class="dialog-title">
-          <h2>Apple Salud</h2>
+          <h2>Atajos</h2>
           <button class="ghost-button" id="closeHealthDialog" type="button">Cerrar</button>
         </div>
         <div class="shortcut-guide">
@@ -299,8 +314,8 @@
           </ol>
         </div>
       </dialog>
-      <p class="app-version">v13</p>
+      <p class="app-version">v14</p>
     </main>
-    <script src="./app.js?v=13"></script>
+    <script src="./app.js?v=14"></script>
   </body>
 </html>

@@ -6,11 +6,11 @@
   --text: #111111;
   --muted: #6f6f76;
   --line: #ececef;
-  --green: #e1121b;
-  --blue: #e1121b;
-  --orange: #f97316;
-  --red-soft: #fff3f4;
-  --cherry-dark: #a50f18;
+  --green: #2f80ed;
+  --blue: #2f80ed;
+  --orange: #ffcc00;
+  --red-soft: #eef5ff;
+  --cherry-dark: #1f66c2;
   --shadow: 0 12px 28px rgba(17, 17, 17, 0.06);
 }
 
@@ -191,7 +191,7 @@ h2 {
 
 .quick-actions button:first-child,
 .quick-actions button:nth-child(3) {
-  background: var(--green);
+  background: #111;
   color: #ffffff;
 }
 
@@ -305,7 +305,7 @@ h2 {
 }
 
 .choice-grid button:first-child {
-  background: var(--green);
+  background: #111;
   color: #fff;
 }
 
@@ -333,7 +333,7 @@ h2 {
 
 .calendar-day.selected {
   border-color: var(--green);
-  background: var(--red-soft);
+  background: #eef5ff;
 }
 
 .calendar-day span,
@@ -347,19 +347,156 @@ h2 {
   font-size: 17px;
 }
 
-.pr-panel {
-  background: #111;
+.exercise-progress-panel {
+  overflow: hidden;
+  padding-bottom: 20px;
+}
+
+.exercise-visual-card {
+  position: relative;
+  display: grid;
+  min-height: 190px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fff, #fafafa);
+}
+
+.machine-figure {
+  position: relative;
+  width: 210px;
+  height: 135px;
+}
+
+.machine-figure::before,
+.machine-figure::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+}
+
+.machine-figure::before {
+  inset: 42px 12px 34px 46px;
+  border: 9px solid #d7dbe1;
+  border-left-color: transparent;
+  transform: skewX(-12deg);
+}
+
+.machine-figure::after {
+  width: 94px;
+  height: 18px;
+  left: 38px;
+  top: 78px;
+  background: #2a2c30;
+  transform: rotate(-18deg);
+  box-shadow: 88px -50px 0 -3px #2a2c30, 118px -48px 0 -3px #2a2c30;
+}
+
+.machine-lat::before,
+.machine-row::before,
+.machine-cable::before {
+  border-color: #cfd4dc;
+  border-top-color: #2a2c30;
+}
+
+.machine-hip::after,
+.machine-deadlift::after,
+.machine-leg::after {
+  transform: rotate(12deg);
+}
+
+.machine-run::after,
+.machine-stairs::after {
+  width: 150px;
+  left: 30px;
+  top: 88px;
+  transform: rotate(0deg);
+  box-shadow: none;
+}
+
+.pr-badge {
+  position: absolute;
+  right: 18px;
+  bottom: -26px;
+  display: grid;
+  width: 76px;
+  height: 76px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--orange);
   color: #fff;
+  font-size: 25px;
+  font-weight: 950;
+  box-shadow: 0 12px 24px rgba(255, 204, 0, 0.34);
+}
+
+.weight-chart-card {
+  position: relative;
+  margin-top: -2px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #fff;
+  padding: 18px;
+  box-shadow: 0 16px 30px rgba(17, 17, 17, 0.08);
+}
+
+.pr-value {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.pr-value strong {
+  font-size: 29px;
+}
+
+.pr-value span {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.strength-chart {
+  position: relative;
+  height: 138px;
+  border-bottom: 1px solid var(--line);
+  background:
+    linear-gradient(to bottom, transparent 32%, #eef0f3 32% 33%, transparent 33% 66%, #eef0f3 66% 67%, transparent 67%);
+}
+
+.chart-point,
+.chart-line {
+  position: absolute;
+  display: block;
+  background: var(--blue);
+}
+
+.chart-point {
+  z-index: 2;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+}
+
+.chart-line {
+  height: 3px;
+  transform-origin: left center;
+}
+
+.pr-panel {
+  background: #ffffff;
+  color: var(--text);
 }
 
 .pr-panel .panel-title span,
 .pr-panel .record-item span {
-  color: rgba(255,255,255,0.68);
+  color: var(--muted);
 }
 
 .pr-panel .record-item {
-  border-color: rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.06);
+  border-color: var(--line);
+  background: #fff;
 }
 
 .compact-records .record-item {
@@ -406,6 +543,15 @@ h2 {
   max-width: 42%;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.exercise-progress-panel .panel-title {
+  align-items: start;
+}
+
+.exercise-progress-panel .panel-title span {
+  max-width: 34%;
+  font-size: 12px;
 }
 
 .bar {
