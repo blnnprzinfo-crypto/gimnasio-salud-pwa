@@ -7,9 +7,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Gimnasio" />
-    <link rel="manifest" href="./manifest.webmanifest?v=12" />
+    <link rel="manifest" href="./manifest.webmanifest?v=13" />
     <link rel="icon" href="./icons/icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=12" />
+    <link rel="stylesheet" href="./styles.css?v=13" />
     <title>Gimnasio Salud</title>
   </head>
   <body>
@@ -17,16 +17,27 @@
       <header class="topbar">
         <div>
           <p class="eyebrow" id="dayLabel">Vuelta al gimnasio</p>
-          <h1>Hoy</h1>
+          <h1>Dashboard</h1>
         </div>
         <button class="icon-button" id="editModulesButton" aria-label="Editar modulos">+</button>
       </header>
 
+      <section class="question-panel panel">
+        <p class="coach-kicker">Pregunta rapida</p>
+        <h2>Que toca hoy?</h2>
+        <div class="choice-grid" aria-label="Elegir entreno de hoy">
+          <button type="button" data-plan="Pierna">Pierna</button>
+          <button type="button" data-plan="Espalda">Espalda</button>
+          <button type="button" data-plan="Pecho">Pecho</button>
+          <button type="button" data-plan="Cardio">Cardio</button>
+        </div>
+      </section>
+
       <section class="quick-actions" aria-label="Acciones rapidas">
-        <button type="button" data-water="500"><span>💧</span> 500 ml</button>
-        <button type="button" id="quickWeightButton"><span>⚖️</span> Peso</button>
-        <button type="button" id="quickWorkoutButton"><span>🏋️</span> Entreno</button>
-        <button type="button" id="quickHealthButton"><span>❤️</span> Salud</button>
+        <button type="button" data-water="500" data-health-shortcut="water"><span>&#128167;</span> 500 ml</button>
+        <button type="button" id="quickWeightButton"><span>&#9878;&#65039;</span> Peso</button>
+        <button type="button" id="quickWorkoutButton"><span>&#127947;&#65039;</span> Entreno</button>
+        <button type="button" id="quickHealthButton"><span>&#10084;&#65039;</span> Salud</button>
       </section>
 
       <section class="date-strip" aria-label="Elegir dia">
@@ -39,6 +50,14 @@
       </section>
 
       <section class="view active" id="todayView">
+        <article class="panel calendar-panel">
+          <div class="panel-title">
+            <h2>Calendario</h2>
+            <span>7 dias</span>
+          </div>
+          <div class="calendar-strip" id="calendarStrip"></div>
+        </article>
+
         <section class="hero-panel">
           <div>
             <span class="soft-label">Peso actual</span>
@@ -52,45 +71,45 @@
 
         <section class="hero-grid">
           <article class="metric-card">
-            <span>🔥 Racha</span>
+            <span>&#128293; Racha</span>
             <strong id="streakHero">0</strong>
             <small>dias activos</small>
           </article>
           <article class="metric-card">
-            <span>🏆 Record</span>
+            <span>&#127942; PR</span>
             <strong id="recordHero">0 kg</strong>
-            <small>mejor marca</small>
+            <small>mejor peso</small>
           </article>
         </section>
 
+        <article class="panel pr-panel">
+          <div class="panel-title">
+            <h2>Dashboard PR</h2>
+            <span>mejores marcas</span>
+          </div>
+          <div class="records-list compact-records" id="homeRecordsList"></div>
+        </article>
+
         <article class="panel priority-panel">
           <div class="panel-title">
-            <h2>🏋️ Entreno activo</h2>
+            <h2>&#127947;&#65039; Entreno activo</h2>
             <span id="todayWorkoutMini">Pierna</span>
           </div>
           <button class="wide-action" id="goWorkoutButton" type="button">Abrir entrenamiento</button>
           <ul class="summary-list mini-summary" id="todaySummary"></ul>
         </article>
 
-        <article class="panel notify-panel">
-          <div class="panel-title">
-            <h2>🔥 Racha semanal</h2>
-            <span id="streakSummary">Dia 1</span>
-          </div>
-          <div class="streak-colors" id="streakColors"></div>
-        </article>
-
         <article class="panel">
           <div class="panel-title">
-            <h2>💧 Agua</h2>
+            <h2>&#128167; Agua</h2>
             <span id="waterSummary">0 / 2000 ml</span>
           </div>
           <div class="bar"><span id="waterBar"></span></div>
           <div class="quick-grid">
-            <button data-water="250">+250 ml</button>
-            <button data-water="500">+500 ml</button>
-            <button data-water="750">+750 ml</button>
-            <button data-water="1000">+1 L</button>
+            <button data-water="250" data-health-shortcut="water">+250 ml</button>
+            <button data-water="500" data-health-shortcut="water">+500 ml</button>
+            <button data-water="750" data-health-shortcut="water">+750 ml</button>
+            <button data-water="1000" data-health-shortcut="water">+1 L</button>
           </div>
           <div class="shortcut-water-grid" aria-label="Enviar agua a Apple Salud">
             <a id="shortcutWater250Link" href="#">Salud 250</a>
@@ -103,28 +122,31 @@
 
         <article class="panel compact-panel">
           <div class="panel-title">
-            <h2>⚖️ Peso</h2>
+            <h2>&#9878;&#65039; Peso</h2>
             <span id="weightDelta">Sin cambios</span>
           </div>
           <form class="inline-form" id="weightForm">
-            <input id="weightInput" inputmode="decimal" placeholder="Ej: 79.8" aria-label="Peso de hoy" />
+            <input id="weightInput" inputmode="decimal" placeholder="Peso de hoy en kg: ej. 79.8" aria-label="Peso de hoy" />
             <button type="submit">Guardar</button>
           </form>
-          <p class="message" id="weightMessage">Placeholder: escribe tu peso de hoy en kg.</p>
+          <p class="message" id="weightMessage">Registra el peso aunque no sea perfecto. Sirve para ver tendencia.</p>
         </article>
 
-        <article class="panel" id="customModulesPanel">
+        <article class="panel notify-panel">
           <div class="panel-title">
-            <h2>Mis modulos</h2>
-            <button class="tiny-action" id="addModuleInlineButton" type="button">+ Anadir</button>
+            <h2>&#128293; Racha semanal</h2>
+            <span id="streakSummary">Dia 1</span>
           </div>
-          <div class="module-list" id="moduleList"></div>
+          <div class="streak-colors" id="streakColors"></div>
         </article>
+
+        <div class="module-list hidden" id="moduleList"></div>
+        <button class="hidden" id="addModuleInlineButton" type="button">Anadir</button>
       </section>
 
       <section class="view" id="statsView">
         <article class="panel">
-          <h2>⚖️ Evolucion de peso</h2>
+          <h2>&#9878;&#65039; Evolucion de peso</h2>
           <div class="chart" id="weightChart"></div>
         </article>
         <article class="panel">
@@ -147,38 +169,39 @@
       <section class="view" id="workoutsView">
         <article class="panel focus-panel">
           <div class="panel-title">
-            <h2>⏱️ Modo gym</h2>
+            <h2>&#9201;&#65039; Modo gym</h2>
             <span id="gymTimerLabel">00:00</span>
           </div>
           <div class="focus-actions">
             <button id="startGymTimerButton" type="button">Empezar</button>
             <button id="stopGymTimerButton" type="button">Terminar</button>
           </div>
+          <a class="focus-shortcut-link" id="shortcutFocusLink" href="#">Abrir Atajo Modo Gym</a>
           <p class="message" id="gymTimerMessage">Cuenta cuanto tiempo estas entrenando hoy.</p>
         </article>
 
         <article class="panel">
           <div class="panel-title">
-            <h2>🏋️ Entreno</h2>
+            <h2>&#127947;&#65039; Entreno</h2>
             <span id="workoutTitleLabel">Sin entreno</span>
           </div>
           <form class="inline-form" id="workoutTitleForm">
-            <input id="workoutTitleInput" placeholder="Ej: Pierna, pecho, espalda, cardio" />
+            <input id="workoutTitleInput" placeholder="Que toca hoy: pierna, espalda, pecho..." />
             <button type="submit">Dia</button>
           </form>
           <form class="exercise-form" id="exerciseForm">
-            <input id="exerciseName" placeholder="Ej: prensa, hip thrust, jalon al pecho" />
-            <input id="exerciseSets" inputmode="numeric" placeholder="Series, ej: 3" />
-            <input id="exerciseReps" inputmode="numeric" placeholder="Reps, ej: 12" />
-            <input id="exerciseWeight" inputmode="decimal" placeholder="Kg o minutos, ej: 25 kg / 17 min" />
-            <button type="submit">Anadir</button>
+            <input id="exerciseName" placeholder="Ejercicio o maquina: prensa, hip thrust..." />
+            <input id="exerciseSets" inputmode="numeric" placeholder="Series: ej. 3" />
+            <input id="exerciseReps" inputmode="numeric" placeholder="Repeticiones: ej. 12" />
+            <input id="exerciseWeight" inputmode="decimal" placeholder="Peso o tiempo: ej. 25 kg / 17 min" />
+            <button type="submit">Anadir ejercicio</button>
           </form>
           <div class="exercise-list" id="exerciseList"></div>
         </article>
 
         <article class="panel">
           <div class="panel-title">
-            <h2>🏆 Mis records</h2>
+            <h2>&#127942; Mis records</h2>
             <span>Pesos maximos</span>
           </div>
           <div class="records-list" id="recordsList"></div>
@@ -188,10 +211,10 @@
       <section class="view" id="healthView">
         <article class="panel health-panel">
           <div class="panel-title">
-            <h2>❤️ Apple Salud</h2>
-            <span>Cherri</span>
+            <h2>&#10084;&#65039; Apple Salud</h2>
+            <span>Atajos</span>
           </div>
-          <p class="message">Botones listos para Atajos. Primero exporta los Cherri y crea los atajos con los nombres exactos.</p>
+          <p class="message">Los botones abren Atajos en iPhone. El de agua recibe ml: 250, 500, 750 o 1000.</p>
           <div class="health-actions">
             <a id="shortcutWaterLink" href="#">Agua</a>
             <a id="shortcutWeightLink" href="#">Peso</a>
@@ -201,13 +224,22 @@
             <a href="./cherri/Gym-Agua.cherri">Cherri Agua</a>
             <a href="./cherri/Gym-Peso.cherri">Cherri Peso</a>
             <a href="./cherri/Gym-Entreno.cherri">Cherri Entreno</a>
+            <a href="./cherri/Gym-Modo.cherri">Cherri Modo</a>
           </div>
           <button class="text-action" id="healthHelpButton" type="button">Como crear los Atajos</button>
         </article>
 
+        <article class="panel">
+          <div class="panel-title">
+            <h2>Widget iPhone</h2>
+            <span>pantalla inicio</span>
+          </div>
+          <p class="message">iOS no deja crear widgets reales desde una web. La forma gratis es instalar esta web en pantalla de inicio y usar Atajos para registrar agua/peso.</p>
+        </article>
+
         <article class="panel notify-panel">
           <div class="panel-title">
-            <h2>Recordatorios</h2>
+            <h2>Notificaciones</h2>
             <span>iPhone</span>
           </div>
           <button class="wide-action" id="enableNotificationsButton" type="button">Activar aviso de agua</button>
@@ -216,10 +248,10 @@
       </section>
 
       <nav class="tabs bottom-tabs" aria-label="Vistas">
-        <button class="tab active" data-view="today"><span>🏠</span>Hoy</button>
-        <button class="tab" data-view="workouts"><span>🏋️</span>Entreno</button>
-        <button class="tab" data-view="stats"><span>📈</span>Progreso</button>
-        <button class="tab" data-view="health"><span>❤️</span>Salud</button>
+        <button class="tab active" data-view="today"><span>&#127968;</span>Hoy</button>
+        <button class="tab" data-view="workouts"><span>&#127947;&#65039;</span>Entreno</button>
+        <button class="tab" data-view="stats"><span>&#128200;</span>Progreso</button>
+        <button class="tab" data-view="health"><span>&#10084;&#65039;</span>Salud</button>
       </nav>
 
       <dialog id="moduleDialog">
@@ -230,7 +262,7 @@
           </div>
           <label>
             Que quieres seguir
-            <input id="moduleTitle" placeholder="Ej: Sueno, pasos, medidas, comida" />
+            <input id="moduleTitle" placeholder="Ej: pasos, medidas, comida" />
           </label>
           <label>
             Tipo
@@ -242,10 +274,9 @@
           </label>
           <label>
             Placeholder
-            <input id="modulePlaceholder" placeholder="Ej: 8 h, 10.000 pasos, cintura 82 cm" />
+            <input id="modulePlaceholder" placeholder="Ej: 10.000 pasos, cintura 82 cm" />
           </label>
           <div class="preset-row" aria-label="Plantillas rapidas">
-            <button type="button" data-preset="Sueno|numero|Ej: 7.5 h">Sueno</button>
             <button type="button" data-preset="Pasos|numero|Ej: 8500">Pasos</button>
             <button type="button" data-preset="Medidas|texto|Ej: cintura 82 cm">Medidas</button>
             <button type="button" data-preset="Suplementos|check|Ej: creatina tomada">Suplementos</button>
@@ -253,23 +284,23 @@
           <button type="submit">Crear modulo</button>
         </form>
       </dialog>
+
       <dialog id="healthDialog">
         <div class="dialog-title">
           <h2>Apple Salud</h2>
           <button class="ghost-button" id="closeHealthDialog" type="button">Cerrar</button>
         </div>
         <div class="shortcut-guide">
-          <p>He dejado los archivos Cherri en la app. Abrelos, pegalos en Cherri Playground y exporta los Atajos con estos nombres exactos:</p>
+          <p>Archivos Cherri incluidos. Abrelos en Cherri Playground y exporta Atajos con estos nombres exactos:</p>
           <ol>
-            <li><strong>Gym Agua</strong>: recibe texto y usa "Registrar muestra de salud" a Agua.</li>
-            <li><strong>Gym Peso</strong>: recibe texto y usa "Registrar muestra de salud" a Peso.</li>
-            <li><strong>Gym Entreno</strong>: recibe texto y usa "Registrar entrenamiento".</li>
+            <li><strong>Gym Agua</strong>: recibe ml y registra agua.</li>
+            <li><strong>Gym Peso</strong>: recibe kg y registra peso.</li>
+            <li><strong>Gym Entreno</strong>: recibe resumen y registra entrenamiento.</li>
           </ol>
-          <p>Despues, los botones integrados en la app abriran esos Atajos con el dato preparado.</p>
         </div>
       </dialog>
-      <p class="app-version">v12</p>
+      <p class="app-version">v13</p>
     </main>
-    <script src="./app.js?v=12"></script>
+    <script src="./app.js?v=13"></script>
   </body>
 </html>

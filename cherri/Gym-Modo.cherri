@@ -1,0 +1,16 @@
+/* Gym Modo
+   Cherri source for Cherri Playground.
+   Goal: open a simple guided gym mode from Shortcuts.
+   Note: Focus modes are controlled by iOS permissions/settings. If Cherri/Shortcuts exposes
+   Set Focus on your iPhone, add it after export with Focus = Fitness/Gym.
+*/
+
+#define color red
+#define glyph dumbbell
+
+@input = shortcutInput()
+if @input == "" {
+  @input = "Entreno"
+}
+
+alert("Modo gym iniciado: {@input}\n\nAbre el dashboard, empieza el contador y registra tus ejercicios.", "Gym Modo")

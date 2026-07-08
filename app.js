@@ -28,15 +28,7 @@ const seed = {
   migratedBackDay: true,
   weights: [{ date: yesterdayKey(), value: 80 }],
   water: {},
-  modules: [
-    {
-      id: "sleep",
-      title: "Sueno",
-      type: "numero",
-      placeholder: "Ej: 7.5 h",
-      entries: {}
-    }
-  ],
+  modules: [],
   workouts: [
     {
       date: yesterdayKey(),
@@ -64,6 +56,7 @@ const load = () => {
   const saved = localStorage.getItem("gym-pwa-data");
   const data = saved ? JSON.parse(saved) : seed;
   data.modules = data.modules || seed.modules;
+  data.modules = data.modules.filter((module) => module.id !== "sleep" && module.title !== "Sueno");
   data.water = data.water || {};
   data.weights = data.weights || seed.weights;
   data.workouts = data.workouts || seed.workouts;
@@ -197,7 +190,7 @@ function render() {
   setText("weightProgress", `${progress}%`);
   const progressRing = document.querySelector(".progress-ring");
   if (progressRing) {
-    progressRing.style.background = `conic-gradient(var(--green) ${progress * 3.6}deg, rgba(255,255,255,0.12) 0deg)`;
+    progressRing.style.background = `conic-gradient(var(--green) ${progress * 3.6}deg, #f1f1f2 0deg)`;
   }
   setText("waterSummary", `${water} / ${state.waterGoal} ml`);
   document.getElementById("waterBar").style.width = `${waterPct}%`;
@@ -239,6 +232,8 @@ function render() {
   )).join("");
 
   renderRecords();
+  renderHomeRecords();
+  renderCalendar();
 
   renderModules();
   renderHistory();
@@ -263,6 +258,36 @@ function renderGymTimer() {
   setText("gymTimerMessage", active ? "Modo gym activo. Cuando acabes, toca Terminar." : "Cuenta cuanto tiempo estas entrenando hoy.");
 }
 
+function renderHomeRecords() {
+  const list = document.getElementById("homeRecordsList");
+  const best = records().slice(0, 3);
+  list.innerHTML = best.length ? best.map((item) => `
+    <div class="record-item">
+      <div class="exercise-thumb exercise-thumb-${exerciseKind(item.name)}" aria-hidden="true"></div>
+      <div>
+        <strong>${item.name}</strong>
+        <span>${item.kg} kg · ${item.workout || "Entreno"}</span>
+      </div>
+    </div>
+  `).join("") : `<div class="module-empty">Tus PRs apareceran aqui cuando guardes ejercicios con kg.</div>`;
+}
+
+function renderCalendar() {
+  const days = Array.from({ length: 7 }, (_, index) => addDays(todayKey(), index - 3));
+  document.getElementById("calendarStrip").innerHTML = days.map((date) => {
+    const workout = getWorkout(date);
+    const hasWorkout = !!(workout?.title || workout?.exercises?.length);
+    const hasWater = (state.water[date] || 0) >= state.waterGoal;
+    const isSelected = date === selectedDate;
+    return `
+      <button class="calendar-day ${isSelected ? "selected" : ""}" data-calendar-date="${date}" type="button">
+        <span>${formatDate(date).split(" ")[0]}</span>
+        <strong>${Number(date.slice(-2))}</strong>
+        <small>${hasWorkout ? "🏋️" : hasWater ? "💧" : "·"}</small>
+      </button>`;
+  }).join("");
+}
+
 function renderRecords() {
   const list = document.getElementById("recordsList");
   const best = records();
@@ -285,6 +310,7 @@ function updateHealthLinks(weight, water, workout) {
   document.getElementById("shortcutWaterLink").href = shortcutUrl("Gym Agua", String(water || 500));
   document.getElementById("shortcutWeightLink").href = shortcutUrl("Gym Peso", String(weight));
   document.getElementById("shortcutWorkoutLink").href = shortcutUrl("Gym Entreno", `${selectedDate}|${workout.title || "Entreno"}|${workout.exercises?.length || 0} ejercicios`);
+  document.getElementById("shortcutFocusLink").href = shortcutUrl("Gym Modo", `${selectedDate}|${workout.title || "Entreno"}`);
   [250, 500, 750, 1000].forEach((ml) => {
     document.getElementById(`shortcutWater${ml}Link`).href = shortcutUrl("Gym Agua", String(ml));
   });
@@ -320,7 +346,7 @@ function renderHistory() {
 function renderModules() {
   const list = document.getElementById("moduleList");
   if (!state.modules.length) {
-    list.innerHTML = `<div class="module-empty">Toca el lapiz para crear un modulo: sueno, pasos, medidas, comida o lo que quieras.</div>`;
+    list.innerHTML = `<div class="module-empty">Toca el lapiz para crear un modulo: pasos, medidas, comida o lo que quieras.</div>`;
     return;
   }
 
@@ -354,8 +380,21 @@ function renderModules() {
 
 document.querySelectorAll("[data-water]").forEach((button) => {
   button.addEventListener("click", () => {
-    state.water[selectedDate] = selectedWater() + Number(button.dataset.water);
+    const ml = Number(button.dataset.water);
+    state.water[selectedDate] = selectedWater() + ml;
     save();
+    if (button.dataset.healthShortcut === "water") {
+      window.location.href = shortcutUrl("Gym Agua", String(ml));
+    }
+  });
+});
+
+document.querySelectorAll("[data-plan]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const workout = ensureWorkout();
+    workout.title = button.dataset.plan;
+    save();
+    document.querySelector('[data-view="workouts"]').click();
   });
 });
 
@@ -498,6 +537,13 @@ document.getElementById("historyList").addEventListener("click", (event) => {
   if (!button) return;
   selectedDate = button.dataset.goDate;
   document.querySelector('[data-view="today"]').click();
+  render();
+});
+
+document.getElementById("calendarStrip").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-calendar-date]");
+  if (!button) return;
+  selectedDate = button.dataset.calendarDate;
   render();
 });
 

@@ -279,6 +279,93 @@ h2 {
   padding: 18px;
 }
 
+.question-panel {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.coach-kicker {
+  margin: 0;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.choice-grid button {
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+.choice-grid button:first-child {
+  background: var(--green);
+  color: #fff;
+}
+
+.calendar-panel {
+  padding-bottom: 12px;
+}
+
+.calendar-strip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(42px, 1fr));
+  gap: 6px;
+}
+
+.calendar-day {
+  display: grid;
+  min-height: 68px;
+  place-items: center;
+  gap: 2px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fff;
+  color: var(--text);
+  padding: 6px 0;
+}
+
+.calendar-day.selected {
+  border-color: var(--green);
+  background: var(--red-soft);
+}
+
+.calendar-day span,
+.calendar-day small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.calendar-day strong {
+  font-size: 17px;
+}
+
+.pr-panel {
+  background: #111;
+  color: #fff;
+}
+
+.pr-panel .panel-title span,
+.pr-panel .record-item span {
+  color: rgba(255,255,255,0.68);
+}
+
+.pr-panel .record-item {
+  border-color: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+}
+
+.compact-records .record-item {
+  padding: 10px;
+}
+
 .priority-panel {
   background: #ffffff;
 }
@@ -651,6 +738,10 @@ h2 {
   margin-top: 10px;
 }
 
+.hidden {
+  display: none !important;
+}
+
 .shortcut-water-grid a {
   display: grid;
   min-height: 42px;
@@ -689,6 +780,18 @@ h2 {
   background: #ffffff;
   border: 1px solid var(--line);
   color: var(--green);
+}
+
+.focus-shortcut-link {
+  display: grid;
+  min-height: 44px;
+  margin-top: 10px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: var(--green);
+  font-weight: 900;
+  text-decoration: none;
 }
 
 .photo-picker {
