@@ -189,15 +189,14 @@ h2 {
   margin-right: 5px;
 }
 
-.quick-actions button:first-child,
-.quick-actions button:nth-child(3) {
+.quick-actions button:first-child {
   background: #111;
   color: #ffffff;
 }
 
 .tabs {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   margin: 18px 0;
 }
@@ -347,141 +346,56 @@ h2 {
   font-size: 17px;
 }
 
-.exercise-progress-panel {
-  overflow: hidden;
-  padding-bottom: 20px;
-}
-
-.exercise-visual-card {
-  position: relative;
-  display: grid;
-  min-height: 190px;
-  place-items: center;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: linear-gradient(180deg, #fff, #fafafa);
-}
-
-.machine-figure {
-  position: relative;
-  width: 210px;
-  height: 135px;
-}
-
-.machine-figure::before,
-.machine-figure::after {
-  content: "";
-  position: absolute;
-  border-radius: 999px;
-}
-
-.machine-figure::before {
-  inset: 42px 12px 34px 46px;
-  border: 9px solid #d7dbe1;
-  border-left-color: transparent;
-  transform: skewX(-12deg);
-}
-
-.machine-figure::after {
-  width: 94px;
-  height: 18px;
-  left: 38px;
-  top: 78px;
-  background: #2a2c30;
-  transform: rotate(-18deg);
-  box-shadow: 88px -50px 0 -3px #2a2c30, 118px -48px 0 -3px #2a2c30;
-}
-
-.machine-lat::before,
-.machine-row::before,
-.machine-cable::before {
-  border-color: #cfd4dc;
-  border-top-color: #2a2c30;
-}
-
-.machine-hip::after,
-.machine-deadlift::after,
-.machine-leg::after {
-  transform: rotate(12deg);
-}
-
-.machine-run::after,
-.machine-stairs::after {
-  width: 150px;
-  left: 30px;
-  top: 88px;
-  transform: rotate(0deg);
-  box-shadow: none;
-}
-
-.pr-badge {
-  position: absolute;
-  right: 18px;
-  bottom: -26px;
-  display: grid;
-  width: 76px;
-  height: 76px;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--orange);
-  color: #fff;
-  font-size: 25px;
-  font-weight: 950;
-  box-shadow: 0 12px 24px rgba(255, 204, 0, 0.34);
-}
-
-.weight-chart-card {
-  position: relative;
-  margin-top: -2px;
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  background: #fff;
-  padding: 18px;
-  box-shadow: 0 16px 30px rgba(17, 17, 17, 0.08);
-}
-
-.pr-value {
+.pr-simple-head {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 10px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
-.pr-value strong {
-  font-size: 29px;
-}
-
-.pr-value span {
-  color: var(--muted);
-  font-weight: 700;
-}
-
-.strength-chart {
-  position: relative;
-  height: 138px;
-  border-bottom: 1px solid var(--line);
-  background:
-    linear-gradient(to bottom, transparent 32%, #eef0f3 32% 33%, transparent 33% 66%, #eef0f3 66% 67%, transparent 67%);
-}
-
-.chart-point,
-.chart-line {
-  position: absolute;
+.pr-simple-head strong {
   display: block;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.pr-simple-head span {
+  display: block;
+  color: var(--muted);
+  font-weight: 800;
+  margin-top: 4px;
+}
+
+.simple-strength-chart {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  height: 138px;
+  padding: 16px 8px 0;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(to bottom, transparent 48%, #eef0f3 49%, transparent 50%);
+}
+
+.simple-bar {
+  position: relative;
+  flex: 1;
+  min-height: 14px;
+  border-radius: 10px 10px 0 0;
+  background: #d7e8ff;
+}
+
+.simple-bar.best {
   background: var(--blue);
 }
 
-.chart-point {
-  z-index: 2;
-  width: 12px;
-  height: 12px;
-  margin: -6px 0 0 -6px;
-  border-radius: 50%;
-}
-
-.chart-line {
-  height: 3px;
-  transform-origin: left center;
+.simple-bar span {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
 }
 
 .pr-panel {
@@ -855,57 +769,8 @@ h2 {
   color: #c2410c;
 }
 
-.health-panel {
-  border-color: var(--line);
-}
-
-.health-actions {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.health-actions a {
-  display: block;
-  border-radius: 14px;
-  background: var(--green);
-  color: #ffffff;
-  font-weight: 900;
-  padding: 14px 8px;
-  text-align: center;
-  text-decoration: none;
-}
-
-.shortcut-water-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-top: 10px;
-}
-
 .hidden {
   display: none !important;
-}
-
-.shortcut-water-grid a {
-  display: grid;
-  min-height: 42px;
-  place-items: center;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: #ffffff;
-  color: var(--green);
-  font-size: 12px;
-  font-weight: 900;
-  text-decoration: none;
-}
-
-.secondary-health-actions a {
-  background: #ffffff;
-  border: 1px solid var(--line);
-  color: var(--green);
-  font-size: 13px;
 }
 
 .text-action {

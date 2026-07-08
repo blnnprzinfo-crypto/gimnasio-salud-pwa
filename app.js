@@ -202,7 +202,6 @@ function render() {
   const lost = 80 - weight;
   const progress = Math.max(0, Math.min(100, Math.round((lost / totalToLose) * 100)));
   const water = selectedWater();
-  const waterPct = Math.min(100, Math.round((water / state.waterGoal) * 100));
   const workout = getWorkout() || { title: "", exercises: [] };
   const dayNumber = Math.max(1, daysBetween(state.startDate, selectedDate) + 1);
   const isToday = selectedDate === todayKey();
@@ -218,9 +217,8 @@ function render() {
   if (progressRing) {
     progressRing.style.background = `conic-gradient(var(--green) ${progress * 3.6}deg, #f1f1f2 0deg)`;
   }
-  setText("waterSummary", `${water} / ${state.waterGoal} ml`);
-  document.getElementById("waterBar").style.width = `${waterPct}%`;
-  setText("waterMessage", water >= state.waterGoal ? "Objetivo de agua cumplido. Buen trabajo." : `Faltan ${state.waterGoal - water} ml para cumplir este dia.`);
+  setText("waterSummary", "");
+  setText("waterMessage", "");
 
   const firstWeight = state.weights[0]?.value || weight;
   const delta = weight - firstWeight;
@@ -242,7 +240,6 @@ function render() {
 
   document.getElementById("todaySummary").innerHTML = [
     `${isToday ? "Hoy" : "Este dia"}: ${workout.title || "sin entreno marcado"}.`,
-    water >= state.waterGoal ? "Has cumplido el agua de hoy." : `Te faltan ${state.waterGoal - water} ml de agua.`,
     `${workout.exercises.length} ejercicios registrados.`
   ].map((item) => `<li>${item}</li>`).join("");
 
@@ -288,8 +285,9 @@ function renderGymTimer() {
 function renderFeaturedExercise(workout) {
   const featured = workout.exercises.find((item) => parseKg(item.value)) || workout.exercises[0] || records()[0];
   const title = featured?.name || "Elige un ejercicio";
+  const featuredKg = featured ? (featured.kg || parseKg(featured.value)) : 0;
   const history = featured ? exerciseHistory(featured.name) : [];
-  const values = history.length ? history.map((item) => item.kg) : [0, 0, 0, 0, 0, 0];
+  const values = history.length > 1 ? history.map((item) => item.kg) : [0, Math.max(1, Math.round(featuredKg * 0.6)), featuredKg];
   const max = Math.max(...values, 1);
   const min = Math.min(...values, 0);
   const range = Math.max(1, max - min);
@@ -297,22 +295,12 @@ function renderFeaturedExercise(workout) {
   setText("featuredExerciseTitle", workout.title ? `${workout.title}: ejercicio destacado` : "Progreso de fuerza");
   setText("featuredExerciseName", title);
   setText("featuredExerciseDate", featured?.date || "nuevo");
-  setText("featuredExercisePr", featured?.kg ? `${featured.kg} kg` : "0 kg");
-  document.getElementById("featuredMachineFigure").className = `machine-figure machine-${exerciseKind(title)}`;
+  setText("featuredExercisePr", featuredKg ? `${featuredKg} kg` : "0 kg");
+  document.getElementById("featuredMachineFigure").className = `exercise-thumb exercise-thumb-${exerciseKind(title)}`;
 
   document.getElementById("strengthChart").innerHTML = values.map((value, index) => {
-    const y = 82 - ((value - min) / range) * 58;
-    const x = 8 + index * (84 / Math.max(1, values.length - 1));
-    return `<span class="chart-point" style="left:${x}%; top:${y}%"></span>`;
-  }).join("") + values.slice(1).map((value, index) => {
-    const prev = values[index];
-    const x1 = 8 + index * (84 / Math.max(1, values.length - 1));
-    const x2 = 8 + (index + 1) * (84 / Math.max(1, values.length - 1));
-    const y1 = 82 - ((prev - min) / range) * 58;
-    const y2 = 82 - ((value - min) / range) * 58;
-    const length = Math.hypot(x2 - x1, y2 - y1);
-    const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-    return `<span class="chart-line" style="left:${x1}%; top:${y1}%; width:${length}%; transform:rotate(${angle}deg)"></span>`;
+    const height = 12 + ((value - min) / range) * 72;
+    return `<div class="simple-bar ${index === values.length - 1 ? "best" : ""}" style="height:${height}%"><span>${value || ""}</span></div>`;
   }).join("");
 }
 
@@ -365,12 +353,8 @@ function shortcutUrl(name, text) {
 }
 
 function updateHealthLinks(weight, water, workout) {
-  document.getElementById("shortcutWaterLink").href = shortcutUrl("Gym Agua", String(water || 500));
-  document.getElementById("shortcutWeightLink").href = shortcutUrl("Gym Peso", String(weight));
-  document.getElementById("shortcutWorkoutLink").href = shortcutUrl("Gym Entreno", `${selectedDate}|${workout.title || "Entreno"}|${workout.exercises?.length || 0} ejercicios`);
-  document.getElementById("shortcutFocusLink").href = shortcutUrl("Gym Modo", `${selectedDate}|${workout.title || "Entreno"}`);
-  [250, 500, 750, 1000].forEach((ml) => {
-    document.getElementById(`shortcutWater${ml}Link`).href = shortcutUrl("Gym Agua", String(ml));
+  ["shortcutWaterLink", "shortcutWeightLink", "shortcutWorkoutLink", "shortcutFocusLink", "shortcutWater250Link", "shortcutWater500Link", "shortcutWater750Link", "shortcutWater1000Link"].forEach((id) => {
+    document.getElementById(id).textContent = "";
   });
 }
 
@@ -396,7 +380,7 @@ function renderHistory() {
     return `
       <button class="history-item" data-go-date="${date}" type="button">
         <strong>${date === todayKey() ? "Hoy" : date === yesterdayKey() ? "Ayer" : formatDate(date)}</strong>
-        <span>${workout?.title || "Sin entreno"} · ${workout?.exercises?.length || 0} ejercicios · ${water} ml agua${weight ? ` · ${weight.value} kg` : ""}</span>
+        <span>${workout?.title || "Sin entreno"} · ${workout?.exercises?.length || 0} ejercicios${weight ? ` · ${weight.value} kg` : ""}</span>
       </button>`;
   }).join("") || `<div class="module-empty">Aun no hay historial. Empieza registrando hoy.</div>`;
 }
@@ -438,12 +422,7 @@ function renderModules() {
 
 document.querySelectorAll("[data-water]").forEach((button) => {
   button.addEventListener("click", () => {
-    const ml = Number(button.dataset.water);
-    state.water[selectedDate] = selectedWater() + ml;
     save();
-    if (button.dataset.healthShortcut === "water") {
-      window.location.href = shortcutUrl("Gym Agua", String(ml));
-    }
   });
 });
 
@@ -508,13 +487,7 @@ document.getElementById("quickWeightButton").addEventListener("click", () => {
   document.getElementById("weightInput").focus();
 });
 
-document.getElementById("healthHelpButton").addEventListener("click", () => {
-  document.getElementById("healthDialog").showModal();
-});
-
-document.getElementById("quickHealthButton").addEventListener("click", () => {
-  document.querySelector('[data-view="health"]').click();
-});
+document.getElementById("healthHelpButton").addEventListener("click", () => {});
 
 document.getElementById("startGymTimerButton").addEventListener("click", () => {
   state.gymTimer = { active: true, startedAt: Date.now(), elapsed: state.gymTimer?.elapsed || 0 };
@@ -543,15 +516,13 @@ document.getElementById("enableNotificationsButton").addEventListener("click", a
   const permission = await Notification.requestPermission();
   if (permission === "granted") {
     message.textContent = "Notificaciones activadas. Te mostrare un aviso de prueba.";
-    new Notification("Agua", { body: "Recuerda beber 500 ml." });
+    new Notification("Gimnasio", { body: "Recuerda registrar tu progreso." });
   } else {
     message.textContent = "No se han activado. Revisa permisos de Safari/iPhone.";
   }
 });
 
-document.getElementById("closeHealthDialog").addEventListener("click", () => {
-  document.getElementById("healthDialog").close();
-});
+document.getElementById("closeHealthDialog").addEventListener("click", () => {});
 
 document.getElementById("moduleList").addEventListener("click", (event) => {
   const saveId = event.target.dataset.saveModule;

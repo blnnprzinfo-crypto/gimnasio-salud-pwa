@@ -7,10 +7,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Gimnasio" />
-    <link rel="manifest" href="./manifest.webmanifest?v=14" />
+    <link rel="manifest" href="./manifest.webmanifest?v=15" />
     <link rel="icon" href="./icons/icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=14" />
-    <title>Gimnasio Salud</title>
+    <link rel="stylesheet" href="./styles.css?v=15" />
+    <title>Gimnasio</title>
   </head>
   <body>
     <main class="app-shell">
@@ -22,11 +22,9 @@
         <button class="icon-button" id="editModulesButton" aria-label="Editar modulos">+</button>
       </header>
 
-      <section class="quick-actions" aria-label="Acciones rapidas">
-        <button type="button" data-water="500" data-health-shortcut="water"><span>&#128167;</span> 500 ml</button>
+      <section class="quick-actions gym-actions" aria-label="Acciones rapidas">
         <button type="button" id="quickWeightButton"><span>&#9878;&#65039;</span> Peso</button>
         <button type="button" id="quickWorkoutButton"><span>&#127947;&#65039;</span> Entreno</button>
-        <button type="button" id="quickHealthButton"><span>&#9881;&#65039;</span> Atajos</button>
       </section>
 
       <section class="date-strip" aria-label="Elegir dia">
@@ -61,19 +59,19 @@
           </div>
         </section>
 
-        <article class="panel exercise-progress-panel">
+        <article class="panel exercise-progress-panel simple-pr-panel">
           <div class="panel-title">
-            <h2 id="featuredExerciseTitle">Progreso de fuerza</h2>
-            <span id="featuredExerciseDate">PR</span>
+            <h2 id="featuredExerciseTitle">PR del dia</h2>
+            <span id="featuredExerciseDate">mejor peso</span>
           </div>
-          <div class="exercise-visual-card">
-            <div class="machine-figure" id="featuredMachineFigure" aria-hidden="true"></div>
-            <div class="pr-badge">PR</div>
+          <div class="pr-simple-head">
+            <div class="exercise-thumb" id="featuredMachineFigure" aria-hidden="true"></div>
+            <div>
+              <strong id="featuredExercisePr">0 kg</strong>
+              <span id="featuredExerciseName">Sin ejercicio</span>
+            </div>
           </div>
-          <div class="weight-chart-card">
-            <div class="pr-value"><strong id="featuredExercisePr">0 kg</strong><span id="featuredExerciseName">Sin ejercicio</span></div>
-            <div class="strength-chart" id="strengthChart"></div>
-          </div>
+          <div class="strength-chart simple-strength-chart" id="strengthChart"></div>
         </article>
 
         <article class="panel calendar-panel">
@@ -112,27 +110,6 @@
           </div>
           <button class="wide-action" id="goWorkoutButton" type="button">Abrir entrenamiento</button>
           <ul class="summary-list mini-summary" id="todaySummary"></ul>
-        </article>
-
-        <article class="panel">
-          <div class="panel-title">
-            <h2>&#128167; Agua</h2>
-            <span id="waterSummary">0 / 2000 ml</span>
-          </div>
-          <div class="bar"><span id="waterBar"></span></div>
-          <div class="quick-grid">
-            <button data-water="250" data-health-shortcut="water">+250 ml</button>
-            <button data-water="500" data-health-shortcut="water">+500 ml</button>
-            <button data-water="750" data-health-shortcut="water">+750 ml</button>
-            <button data-water="1000" data-health-shortcut="water">+1 L</button>
-          </div>
-          <div class="shortcut-water-grid" aria-label="Enviar agua con Atajos">
-            <a id="shortcutWater250Link" href="#">Salud 250</a>
-            <a id="shortcutWater500Link" href="#">Salud 500</a>
-            <a id="shortcutWater750Link" href="#">Salud 750</a>
-            <a id="shortcutWater1000Link" href="#">Salud 1 L</a>
-          </div>
-          <p class="message" id="waterMessage">Empieza con 500 ml. Facil, rapido y cuenta.</p>
         </article>
 
         <article class="panel compact-panel">
@@ -175,7 +152,6 @@
           <h2>Consistencia</h2>
           <div class="stats-grid">
             <div><strong id="workoutsWeek">1</strong><span>Entrenos semana</span></div>
-            <div><strong id="waterStreak">0</strong><span>Racha agua</span></div>
             <div><strong id="weightStreak">0</strong><span>Racha peso</span></div>
           </div>
         </article>
@@ -191,7 +167,6 @@
             <button id="startGymTimerButton" type="button">Empezar</button>
             <button id="stopGymTimerButton" type="button">Terminar</button>
           </div>
-          <a class="focus-shortcut-link" id="shortcutFocusLink" href="#">Abrir Atajo Modo Gym</a>
           <p class="message" id="gymTimerMessage">Cuenta cuanto tiempo estas entrenando hoy.</p>
         </article>
 
@@ -223,50 +198,10 @@
         </article>
       </section>
 
-      <section class="view" id="healthView">
-        <article class="panel health-panel">
-          <div class="panel-title">
-            <h2>Atajos del iPhone</h2>
-            <span>iPhone</span>
-          </div>
-          <p class="message">Los botones abren Atajos en iPhone. El de agua recibe ml: 250, 500, 750 o 1000.</p>
-          <div class="health-actions">
-            <a id="shortcutWaterLink" href="#">Agua</a>
-            <a id="shortcutWeightLink" href="#">Peso</a>
-            <a id="shortcutWorkoutLink" href="#">Entreno</a>
-          </div>
-          <div class="health-actions secondary-health-actions">
-            <a href="./cherri/Gym-Agua.cherri">Cherri Agua</a>
-            <a href="./cherri/Gym-Peso.cherri">Cherri Peso</a>
-            <a href="./cherri/Gym-Entreno.cherri">Cherri Entreno</a>
-            <a href="./cherri/Gym-Modo.cherri">Cherri Modo</a>
-          </div>
-          <button class="text-action" id="healthHelpButton" type="button">Como crear los Atajos</button>
-        </article>
-
-        <article class="panel">
-          <div class="panel-title">
-            <h2>Widget iPhone</h2>
-            <span>pantalla inicio</span>
-          </div>
-          <p class="message">iOS no deja crear widgets reales desde una web. La forma gratis es instalar esta web en pantalla de inicio y usar Atajos para registrar agua/peso.</p>
-        </article>
-
-        <article class="panel notify-panel">
-          <div class="panel-title">
-            <h2>Notificaciones</h2>
-            <span>iPhone</span>
-          </div>
-          <button class="wide-action" id="enableNotificationsButton" type="button">Activar aviso de agua</button>
-          <p class="message" id="notificationMessage">En iPhone funciona si la app esta anadida a pantalla de inicio y Safari permite notificaciones.</p>
-        </article>
-      </section>
-
       <nav class="tabs bottom-tabs" aria-label="Vistas">
         <button class="tab active" data-view="today"><span>&#127968;</span>Hoy</button>
         <button class="tab" data-view="workouts"><span>&#127947;&#65039;</span>Ejercicios</button>
         <button class="tab" data-view="stats"><span>&#128200;</span>Progreso</button>
-        <button class="tab" data-view="health"><span>&#9881;&#65039;</span>Atajos</button>
       </nav>
 
       <dialog id="moduleDialog">
@@ -300,22 +235,16 @@
         </form>
       </dialog>
 
-      <dialog id="healthDialog">
-        <div class="dialog-title">
-          <h2>Atajos</h2>
-          <button class="ghost-button" id="closeHealthDialog" type="button">Cerrar</button>
-        </div>
-        <div class="shortcut-guide">
-          <p>Archivos Cherri incluidos. Abrelos en Cherri Playground y exporta Atajos con estos nombres exactos:</p>
-          <ol>
-            <li><strong>Gym Agua</strong>: recibe ml y registra agua.</li>
-            <li><strong>Gym Peso</strong>: recibe kg y registra peso.</li>
-            <li><strong>Gym Entreno</strong>: recibe resumen y registra entrenamiento.</li>
-          </ol>
-        </div>
-      </dialog>
-      <p class="app-version">v14</p>
+      <div class="hidden">
+        <span id="waterSummary"></span><span id="waterMessage"></span><span id="waterStreak"></span>
+        <span id="shortcutWaterLink"></span><span id="shortcutWeightLink"></span><span id="shortcutWorkoutLink"></span>
+        <span id="shortcutFocusLink"></span><span id="shortcutWater250Link"></span><span id="shortcutWater500Link"></span>
+        <span id="shortcutWater750Link"></span><span id="shortcutWater1000Link"></span>
+        <span id="notificationMessage"></span><button id="enableNotificationsButton" type="button"></button>
+        <button id="healthHelpButton" type="button"></button><button id="closeHealthDialog" type="button"></button>
+      </div>
+      <p class="app-version">v15</p>
     </main>
-    <script src="./app.js?v=14"></script>
+    <script src="./app.js?v=15"></script>
   </body>
 </html>
