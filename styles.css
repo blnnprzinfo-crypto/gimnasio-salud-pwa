@@ -443,3 +443,10 @@ dialog::backdrop {
   background: var(--panel-2);
   color: var(--text);
 }
+
+.app-version {
+  margin: 18px 0 0;
+  color: rgba(255,255,255,0.28);
+  font-size: 11px;
+  text-align: center;
+}
