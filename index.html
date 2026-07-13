@@ -7,9 +7,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Gimnasio" />
-    <link rel="manifest" href="./manifest.webmanifest?v=17" />
+    <link rel="manifest" href="./manifest.webmanifest?v=18" />
     <link rel="icon" href="./icons/icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=17" />
+    <link rel="stylesheet" href="./styles.css?v=18" />
     <title>Gimnasio</title>
   </head>
   <body>
@@ -19,16 +19,7 @@
           <p class="eyebrow" id="dayLabel">Vuelta al gimnasio</p>
           <h1>Gimnasio</h1>
         </div>
-        <div class="topbar-actions">
-          <button class="icon-button" id="openSettingsButton" aria-label="Ajustes">&#9881;&#65039;</button>
-          <button class="icon-button" id="editModulesButton" aria-label="Editar modulos">+</button>
-        </div>
       </header>
-
-      <section class="quick-actions gym-actions" aria-label="Acciones rapidas">
-        <button type="button" id="quickWeightButton"><span>&#9878;&#65039;</span> Peso</button>
-        <button type="button" id="quickWorkoutButton"><span>&#127947;&#65039;</span> Entreno</button>
-      </section>
 
       <section class="date-strip" aria-label="Elegir dia">
         <button id="prevDayButton" type="button">Ayer</button>
@@ -39,239 +30,102 @@
         <button id="nextDayButton" type="button">Sig.</button>
       </section>
 
-      <section class="view active" id="todayView">
-        <section class="hero-panel">
-          <div>
-            <span class="soft-label">Peso actual</span>
-            <strong id="currentWeight">80 kg</strong>
-            <small id="targetWeightLabel">Objetivo: 65 kg</small>
-          </div>
-          <div class="progress-ring" aria-label="Progreso al objetivo">
-            <span id="weightProgress">0%</span>
-          </div>
-        </section>
-
-        <section class="question-panel panel">
-          <p class="coach-kicker">Plan de hoy</p>
-          <h2>Que toca entrenar?</h2>
-          <div class="choice-grid" aria-label="Elegir entreno de hoy">
-            <button type="button" data-plan="Pierna">Pierna</button>
-            <button type="button" data-plan="Espalda">Espalda</button>
-            <button type="button" data-plan="Pecho">Pecho</button>
-            <button type="button" data-plan="Triceps">Triceps</button>
-            <button type="button" data-plan="Gluteo">Gluteo</button>
-            <button type="button" data-plan="Cardio">Cardio</button>
-          </div>
-        </section>
-
-        <article class="panel exercise-progress-panel simple-pr-panel">
-          <div class="panel-title">
-            <h2 id="featuredExerciseTitle">PR del dia</h2>
-            <span id="featuredExerciseDate">mejor peso</span>
-          </div>
-          <div class="pr-simple-head">
-            <div class="exercise-thumb" id="featuredMachineFigure" aria-hidden="true"></div>
-            <div>
-              <strong id="featuredExercisePr">0 kg</strong>
-              <span id="featuredExerciseName">Sin ejercicio</span>
-            </div>
-          </div>
-          <div class="strength-chart simple-strength-chart" id="strengthChart"></div>
-        </article>
-
-        <article class="panel calendar-panel">
-          <div class="panel-title">
-            <h2>Calendario</h2>
-            <span>7 dias</span>
-          </div>
-          <div class="calendar-strip" id="calendarStrip"></div>
-        </article>
-
-        <section class="hero-grid">
-          <article class="metric-card">
-            <span>&#128293; Racha</span>
-            <strong id="streakHero">0</strong>
-            <small>dias activos</small>
-          </article>
-          <article class="metric-card">
-            <span>&#127942; PR</span>
-            <strong id="recordHero">0 kg</strong>
-            <small>mejor peso</small>
-          </article>
-        </section>
-
-        <article class="panel priority-panel">
-          <div class="panel-title">
-            <h2>&#127947;&#65039; Entreno activo</h2>
-            <span id="todayWorkoutMini">Pierna</span>
-          </div>
-          <button class="wide-action" id="goWorkoutButton" type="button">Abrir entrenamiento</button>
-          <ul class="summary-list mini-summary" id="todaySummary"></ul>
-        </article>
-
-        <article class="panel compact-panel">
-          <div class="panel-title">
-            <h2>&#9878;&#65039; Peso</h2>
-            <span id="weightDelta">Sin cambios</span>
-          </div>
-          <form class="inline-form" id="weightForm">
-            <input id="weightInput" inputmode="decimal" placeholder="Peso de hoy en kg: ej. 79.8" aria-label="Peso de hoy" />
-            <button type="submit">Guardar</button>
-          </form>
-          <p class="message" id="weightMessage">Registra el peso aunque no sea perfecto. Sirve para ver tendencia.</p>
-        </article>
-
-        <div class="module-list hidden" id="moduleList"></div>
-        <button class="hidden" id="addModuleInlineButton" type="button">Anadir</button>
+      <section class="hero-panel">
+        <div>
+          <span class="soft-label">Peso actual</span>
+          <strong id="currentWeight">80 kg</strong>
+          <small id="targetWeightLabel">Objetivo: 65 kg</small>
+        </div>
+        <div class="progress-ring" aria-label="Progreso al objetivo">
+          <span id="weightProgress">0%</span>
+        </div>
       </section>
 
-      <section class="view" id="statsView">
-        <article class="panel">
-          <h2>&#9878;&#65039; Evolucion de peso</h2>
-          <div class="chart" id="weightChart"></div>
-        </article>
-        <article class="panel">
-          <div class="panel-title">
-            <h2>Historial</h2>
-            <span>Ultimos dias</span>
-          </div>
-          <div class="history-list" id="historyList"></div>
-        </article>
-        <article class="panel">
-          <h2>Consistencia</h2>
-          <div class="stats-grid">
-            <div><strong id="workoutsWeek">1</strong><span>Entrenos semana</span></div>
-            <div><strong id="weightStreak">0</strong><span>Racha peso</span></div>
-          </div>
-        </article>
-        <article class="panel notify-panel">
-          <div class="panel-title">
-            <h2>&#128293; Racha semanal</h2>
-            <span id="streakSummary">Dia 1</span>
-          </div>
-          <div class="streak-colors" id="streakColors"></div>
-        </article>
-        <article class="panel">
-          <div class="panel-title">
-            <h2>Dias por grupo</h2>
-            <span>favoritos</span>
-          </div>
-          <div class="group-count-list" id="groupCountList"></div>
-        </article>
-      </section>
-
-      <section class="view" id="workoutsView">
-        <article class="panel focus-panel">
-          <div class="panel-title">
-            <h2>&#9201;&#65039; Modo gym</h2>
-            <span id="gymTimerLabel">00:00</span>
-          </div>
-          <div class="focus-actions">
-            <button id="startGymTimerButton" type="button">Empezar</button>
-            <button id="stopGymTimerButton" type="button">Terminar</button>
-          </div>
-          <p class="message" id="gymTimerMessage">Cuenta cuanto tiempo estas entrenando hoy.</p>
-        </article>
-
-        <article class="panel">
-          <div class="panel-title">
-            <h2>&#127947;&#65039; Entreno</h2>
-            <span id="workoutTitleLabel">Sin entreno</span>
-          </div>
-          <form class="inline-form" id="workoutTitleForm">
-            <input id="workoutTitleInput" placeholder="Que toca hoy: pierna, espalda, triceps..." />
-            <button type="submit">Dia</button>
-          </form>
-          <button class="ghost-button" id="clearWorkoutButton" type="button">Vaciar dia</button>
-          <div class="exercise-picker-panel">
-            <div class="panel-title">
-              <h3>Marca lo que has hecho</h3>
-              <span id="exercisePickerPlan">Elige grupo</span>
-            </div>
-            <div class="exercise-picker-list" id="exercisePickerList"></div>
-          </div>
-          <form class="exercise-form" id="exerciseForm">
-            <input id="exerciseName" placeholder="Ejercicio nuevo: prensa, hip thrust, curl..." />
-            <input id="exerciseSets" inputmode="numeric" placeholder="Series hechas: ej. 3" />
-            <input id="exerciseReps" inputmode="numeric" placeholder="Reps por serie: ej. 12" />
-            <input id="exerciseWeight" inputmode="decimal" placeholder="Peso o tiempo: ej. 25 kg / 17 min" />
-            <button type="submit">Anadir ejercicio</button>
-          </form>
-          <div class="exercise-list" id="exerciseList"></div>
-        </article>
-
-        <article class="panel">
-          <div class="panel-title">
-            <h2>&#127942; Mis records</h2>
-            <span>Pesos maximos</span>
-          </div>
-          <div class="records-list" id="recordsList"></div>
-        </article>
-      </section>
-
-      <nav class="tabs bottom-tabs" aria-label="Vistas">
-        <button class="tab active" data-view="today"><span>&#127968;</span>Hoy</button>
-        <button class="tab" data-view="workouts"><span>&#127947;&#65039;</span>Ejercicios</button>
-        <button class="tab" data-view="stats"><span>&#128200;</span>Progreso</button>
-      </nav>
-
-      <dialog id="settingsDialog">
-        <form class="module-form" id="settingsForm">
-          <div class="dialog-title">
-            <h2>Ajustes</h2>
-            <button class="ghost-button" id="closeSettingsDialog" type="button">Cerrar</button>
-          </div>
-          <label>
-            Peso objetivo (kg)
-            <input id="targetWeightInput" inputmode="decimal" placeholder="Ej: 65" />
-          </label>
-          <button type="submit">Guardar objetivo</button>
-          <div class="dialog-title">
-            <h2>Copia de seguridad</h2>
-          </div>
-          <button type="button" id="exportDataButton">Exportar datos (JSON)</button>
-          <label>
-            Importar datos (JSON)
-            <input id="importDataInput" type="file" accept="application/json" />
-          </label>
-          <p class="message" id="settingsMessage"></p>
-          <button type="button" class="danger-button" id="resetDataButton">Reiniciar todos los datos</button>
+      <article class="panel compact-panel">
+        <div class="panel-title">
+          <h2>&#9878;&#65039; Peso</h2>
+          <span id="weightDelta">Sin cambios</span>
+        </div>
+        <form class="inline-form" id="weightForm">
+          <input id="weightInput" inputmode="decimal" placeholder="Peso de hoy en kg: ej. 79.8" aria-label="Peso de hoy" />
+          <button type="submit">Guardar</button>
         </form>
-      </dialog>
+      </article>
 
-      <dialog id="moduleDialog">
-        <form method="dialog" class="module-form" id="moduleForm">
-          <div class="dialog-title">
-            <h2>Nuevo modulo</h2>
-            <button class="ghost-button" id="closeModuleDialog" type="button">Cerrar</button>
-          </div>
-          <label>
-            Que quieres seguir
-            <input id="moduleTitle" placeholder="Ej: pasos, medidas, comida" />
-          </label>
-          <label>
-            Tipo
-            <select id="moduleType">
-              <option value="numero">Numero</option>
-              <option value="check">Hecho / no hecho</option>
-              <option value="texto">Nota rapida</option>
-            </select>
-          </label>
-          <label>
-            Placeholder
-            <input id="modulePlaceholder" placeholder="Ej: 10.000 pasos, cintura 82 cm" />
-          </label>
-          <div class="preset-row" aria-label="Plantillas rapidas">
-            <button type="button" data-preset="Pasos|numero|Ej: 8500">Pasos</button>
-            <button type="button" data-preset="Medidas|texto|Ej: cintura 82 cm">Medidas</button>
-            <button type="button" data-preset="Suplementos|check|Ej: creatina tomada">Suplementos</button>
-          </div>
-          <button type="submit">Crear modulo</button>
+      <section class="question-panel panel">
+        <p class="coach-kicker">Plan de hoy</p>
+        <h2>Que toca entrenar?</h2>
+        <div class="choice-grid" aria-label="Elegir entreno de hoy">
+          <button type="button" data-plan="Pierna">Pierna</button>
+          <button type="button" data-plan="Espalda">Espalda</button>
+          <button type="button" data-plan="Pecho">Pecho</button>
+          <button type="button" data-plan="Triceps">Triceps</button>
+          <button type="button" data-plan="Gluteo">Gluteo</button>
+          <button type="button" data-plan="Cardio">Cardio</button>
+        </div>
+      </section>
+
+      <article class="panel focus-panel">
+        <div class="panel-title">
+          <h2>&#9201;&#65039; Modo gym</h2>
+          <span id="gymTimerLabel">00:00</span>
+        </div>
+        <div class="focus-actions">
+          <button id="startGymTimerButton" type="button">Empezar</button>
+          <button id="stopGymTimerButton" type="button">Terminar</button>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-title">
+          <h2>&#127947;&#65039; Entreno</h2>
+          <span id="workoutTitleLabel">Sin entreno</span>
+        </div>
+        <form class="inline-form" id="workoutTitleForm">
+          <input id="workoutTitleInput" placeholder="Que toca hoy: pierna, espalda, triceps..." />
+          <button type="submit">Dia</button>
         </form>
-      </dialog>
+        <button class="ghost-button" id="clearWorkoutButton" type="button">Vaciar dia</button>
+        <div class="exercise-picker-panel">
+          <div class="panel-title">
+            <h3>Marca lo que has hecho</h3>
+            <span id="exercisePickerPlan">Elige grupo</span>
+          </div>
+          <div class="exercise-picker-list" id="exercisePickerList"></div>
+        </div>
+        <form class="exercise-form" id="exerciseForm">
+          <input id="exerciseName" placeholder="Ejercicio nuevo: prensa, hip thrust, curl..." />
+          <input id="exerciseSets" inputmode="numeric" placeholder="Series hechas: ej. 3" />
+          <input id="exerciseReps" inputmode="numeric" placeholder="Reps por serie: ej. 12" />
+          <input id="exerciseWeight" inputmode="decimal" placeholder="Peso o tiempo: ej. 25 kg / 17 min" />
+          <button type="submit">Anadir ejercicio</button>
+        </form>
+        <div class="exercise-list" id="exerciseList"></div>
+      </article>
 
-      <p class="app-version">v17</p>
+      <section class="hero-grid">
+        <article class="metric-card">
+          <span>&#128293; Racha</span>
+          <strong id="streakHero">0</strong>
+          <small>dias activos</small>
+        </article>
+        <article class="metric-card">
+          <span>&#127942; PR</span>
+          <strong id="recordHero">0 kg</strong>
+          <small>mejor peso</small>
+        </article>
+      </section>
+
+      <article class="panel">
+        <div class="panel-title">
+          <h2>&#127942; Mis records</h2>
+          <span>Pesos maximos</span>
+        </div>
+        <div class="records-list" id="recordsList"></div>
+      </article>
+
+      <p class="app-version">v18</p>
     </main>
-    <script src="./app.js?v=17"></script>
+    <script src="./app.js?v=18"></script>
   </body>
 </html>

@@ -1,4 +1,4 @@
-﻿const dateKey = (date = new Date()) => {
+const dateKey = (date = new Date()) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
@@ -26,7 +26,6 @@ const seed = {
   startDate: yesterdayKey(),
   migratedBackDay: true,
   weights: [{ date: yesterdayKey(), value: 80 }],
-  modules: [],
   workouts: [
     {
       date: yesterdayKey(),
@@ -87,7 +86,6 @@ const planTemplates = {
 const load = () => {
   const saved = localStorage.getItem("gym-pwa-data");
   const data = saved ? JSON.parse(saved) : seed;
-  data.modules = data.modules || seed.modules;
   data.weights = data.weights || seed.weights;
   data.workouts = data.workouts || seed.workouts;
   data.startDate = data.startDate || data.workouts[0]?.date || data.weights[0]?.date || todayKey();
@@ -98,12 +96,6 @@ const load = () => {
     && data.workouts[0].exercises?.length === 5
     && !data.migratedBackDay;
   let changed = false;
-
-  if (!data.migratedSleepModule) {
-    data.modules = data.modules.filter((module) => module.id !== "sleep" && module.title !== "Sueno");
-    data.migratedSleepModule = true;
-    changed = true;
-  }
 
   if (hasOnlyDefaultBackDay) {
     data.workouts[0].date = yesterdayKey();
@@ -135,16 +127,6 @@ const save = () => {
   localStorage.setItem("gym-pwa-data", JSON.stringify(state));
   render();
 };
-
-const fileToDataUrl = (file) => new Promise((resolve) => {
-  if (!file) {
-    resolve("");
-    return;
-  }
-  const reader = new FileReader();
-  reader.onload = () => resolve(reader.result);
-  reader.readAsDataURL(file);
-});
 
 const latestWeight = () => state.weights[state.weights.length - 1]?.value || 80;
 const getWorkout = (date = selectedDate) => state.workouts.find((item) => item.date === date);
@@ -186,10 +168,6 @@ const allExercises = () => state.workouts.flatMap((workout) =>
   (workout.exercises || []).map((exercise) => ({ ...exercise, date: workout.date, workout: workout.title }))
 );
 
-const exerciseHistory = (name) => allExercises()
-  .filter((exercise) => exercise.name.toLowerCase().trim() === name.toLowerCase().trim() && parseKg(exercise.value))
-  .sort((a, b) => a.date.localeCompare(b.date));
-
 const records = () => {
   const byName = new Map();
   allExercises().forEach((exercise) => {
@@ -202,16 +180,6 @@ const records = () => {
     }
   });
   return [...byName.values()].sort((a, b) => b.kg - a.kg);
-};
-
-const workoutGroupCounts = () => {
-  const counts = new Map();
-  state.workouts.forEach((workout) => {
-    if (!workout.title && !workout.exercises?.length) return;
-    const title = workout.title || "Entreno";
-    counts.set(title, (counts.get(title) || 0) + 1);
-  });
-  return [...counts.entries()].map(([title, count]) => ({ title, count })).sort((a, b) => b.count - a.count);
 };
 
 const matchesTemplateExercises = (workout) => {
@@ -250,26 +218,16 @@ function render() {
   }
   const delta = weight - firstWeight;
   setText("weightDelta", delta === 0 ? "Sin cambios" : `${delta > 0 ? "+" : ""}${delta.toFixed(1)} kg total`);
-  setText("weightMessage", weight <= firstWeight ? "Vas en buena direccion. Lo importante es registrar, no hacerlo perfecto." : "Sin drama: registra el dato y seguimos con el plan.");
 
-  setText("workoutsWeek", String(state.workouts.filter((item) => item.title || item.exercises?.length).length));
-  setText("weightStreak", String(state.weights.length));
-  setText("streakSummary", `Dia ${dayNumber}`);
   setText("streakHero", `${state.workouts.filter((item) => item.title || item.exercises?.length).length}`);
   const topRecord = records()[0];
   setText("recordHero", topRecord ? `${topRecord.kg} kg` : "0 kg");
   setText("workoutTitleLabel", workout.title || "Sin entreno");
-  setText("todayWorkoutMini", workout.title || "Sin entreno");
   document.getElementById("workoutTitleInput").value = workout.title || "";
   document.querySelectorAll("[data-plan]").forEach((button) => {
     button.classList.toggle("selected", button.dataset.plan === workout.title);
   });
   renderGymTimer();
-
-  document.getElementById("todaySummary").innerHTML = [
-    `${isToday ? "Hoy" : "Este dia"}: ${workout.title || "sin entreno marcado"}.`,
-    `${workout.exercises.length} ejercicios registrados.`
-  ].map((item) => `<li>${item}</li>`).join("");
 
   document.getElementById("exerciseList").innerHTML = workout.exercises.map((item, index) => (
     `<div class="exercise-item">
@@ -285,21 +243,6 @@ function render() {
 
   renderExercisePicker(workout);
   renderRecords();
-  renderGroupCounts();
-  renderFeaturedExercise(workout);
-  renderCalendar();
-
-  renderModules();
-  renderHistory();
-  renderStreakDots();
-
-  const weights = state.weights.slice(-8);
-  const min = Math.min(...weights.map((item) => item.value), state.targetWeight);
-  const max = Math.max(...weights.map((item) => item.value), 80);
-  document.getElementById("weightChart").innerHTML = weights.map((item) => {
-    const height = 20 + ((max - item.value) / Math.max(1, max - min)) * 110;
-    return `<div style="height:${height}px" title="${item.date}: ${item.value} kg"></div>`;
-  }).join("");
 }
 
 function renderGymTimer() {
@@ -309,29 +252,6 @@ function renderGymTimer() {
   const minutes = Math.floor(elapsed / 60000);
   const seconds = Math.floor((elapsed % 60000) / 1000);
   setText("gymTimerLabel", `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`);
-  setText("gymTimerMessage", active ? "Modo gym activo. Cuando acabes, toca Terminar." : "Cuenta cuanto tiempo estas entrenando hoy.");
-}
-
-function renderFeaturedExercise(workout) {
-  const featured = workout.exercises.find((item) => parseKg(item.value)) || workout.exercises[0] || records()[0];
-  const title = featured?.name || "Elige un ejercicio";
-  const featuredKg = featured ? (featured.kg || parseKg(featured.value)) : 0;
-  const history = featured ? exerciseHistory(featured.name) : [];
-  const values = history.length > 1 ? history.map((item) => item.kg) : [0, Math.max(1, Math.round(featuredKg * 0.6)), featuredKg];
-  const max = Math.max(...values, 1);
-  const min = Math.min(...values, 0);
-  const range = Math.max(1, max - min);
-
-  setText("featuredExerciseTitle", workout.title ? `${workout.title}: ejercicio destacado` : "Progreso de fuerza");
-  setText("featuredExerciseName", title);
-  setText("featuredExerciseDate", featured?.date || "nuevo");
-  setText("featuredExercisePr", featuredKg ? `${featuredKg} kg` : "0 kg");
-  document.getElementById("featuredMachineFigure").className = `exercise-thumb exercise-thumb-${exerciseKind(title)}`;
-
-  document.getElementById("strengthChart").innerHTML = values.map((value, index) => {
-    const height = 12 + ((value - min) / range) * 72;
-    return `<div class="simple-bar ${index === values.length - 1 ? "best" : ""}" style="height:${height}%"><span>${value || ""}</span></div>`;
-  }).join("");
 }
 
 function renderExercisePicker(workout) {
@@ -359,36 +279,6 @@ function renderExercisePicker(workout) {
   }).join("");
 }
 
-function renderGroupCounts() {
-  const list = document.getElementById("groupCountList");
-  const counts = workoutGroupCounts();
-  const max = Math.max(...counts.map((item) => item.count), 1);
-  list.innerHTML = counts.length ? counts.map((item) => `
-    <div class="group-count-row">
-      <div>
-        <strong>${item.title}</strong>
-        <span>${item.count} ${item.count === 1 ? "dia" : "dias"}</span>
-      </div>
-      <div class="group-count-bar"><i style="width:${Math.max(18, (item.count / max) * 100)}%"></i></div>
-    </div>
-  `).join("") : `<div class="module-empty">Cuando guardes entrenos, aqui veras que grupos repites mas.</div>`;
-}
-
-function renderCalendar() {
-  const days = Array.from({ length: 7 }, (_, index) => addDays(todayKey(), index - 3));
-  document.getElementById("calendarStrip").innerHTML = days.map((date) => {
-    const workout = getWorkout(date);
-    const hasWorkout = !!(workout?.title || workout?.exercises?.length);
-    const isSelected = date === selectedDate;
-    return `
-      <button class="calendar-day ${isSelected ? "selected" : ""}" data-calendar-date="${date}" type="button">
-        <span>${formatDate(date).split(" ")[0]}</span>
-        <strong>${Number(date.slice(-2))}</strong>
-        <small>${hasWorkout ? "🏋️" : "·"}</small>
-      </button>`;
-  }).join("");
-}
-
 function renderRecords() {
   const list = document.getElementById("recordsList");
   const best = records();
@@ -403,66 +293,6 @@ function renderRecords() {
   `).join("") : `<div class="module-empty">Cuando guardes pesos en kg, aqui apareceran tus records por ejercicio.</div>`;
 }
 
-function renderStreakDots() {
-  const days = Array.from({ length: 7 }, (_, index) => addDays(todayKey(), index - 6));
-  document.getElementById("streakColors").innerHTML = days.map((date) => {
-    const trained = state.workouts.some((item) => item.date === date && (item.title || item.exercises?.length));
-    return `<span class="streak-dot ${trained ? "done" : ""}" title="${date}">${trained ? "🔥" : "·"}</span>`;
-  }).join("");
-}
-
-function renderHistory() {
-  const dates = [...new Set([
-    ...state.workouts.map((item) => item.date),
-    ...state.weights.map((item) => item.date)
-  ])].sort().reverse().slice(0, 10);
-
-  document.getElementById("historyList").innerHTML = dates.map((date) => {
-  const workout = getWorkout(date);
-    const weight = state.weights.find((item) => item.date === date);
-    return `
-      <button class="history-item" data-go-date="${date}" type="button">
-        <strong>${date === todayKey() ? "Hoy" : date === yesterdayKey() ? "Ayer" : formatDate(date)}</strong>
-        <span>${workout?.title || "Sin entreno"} · ${workout?.exercises?.length || 0} ejercicios${weight ? ` · ${weight.value} kg` : ""}</span>
-      </button>`;
-  }).join("") || `<div class="module-empty">Aun no hay historial. Empieza registrando hoy.</div>`;
-}
-
-function renderModules() {
-  const list = document.getElementById("moduleList");
-  if (!state.modules.length) {
-    list.innerHTML = `<div class="module-empty">Toca el lapiz para crear un modulo: pasos, medidas, comida o lo que quieras.</div>`;
-    return;
-  }
-
-  list.innerHTML = state.modules.map((module) => {
-    const value = module.entries?.[selectedDate] || "";
-    if (module.type === "check") {
-      return `
-        <div class="module-item" data-module-id="${module.id}">
-          <div class="panel-title">
-            <div><strong>${module.title}</strong><span>${value ? "Completado hoy" : module.placeholder}</span></div>
-            <button class="delete-module" data-delete-module="${module.id}" type="button">Borrar</button>
-          </div>
-          <div class="module-check">
-            <button data-toggle-module="${module.id}" type="button">${value ? "Hecho" : "Marcar hecho"}</button>
-          </div>
-        </div>`;
-    }
-    return `
-      <div class="module-item" data-module-id="${module.id}">
-        <div class="panel-title">
-          <div><strong>${module.title}</strong><span>${value || "Sin dato hoy"}</span></div>
-          <button class="delete-module" data-delete-module="${module.id}" type="button">Borrar</button>
-        </div>
-        <div class="module-row">
-          <input data-module-input="${module.id}" inputmode="${module.type === "numero" ? "decimal" : "text"}" placeholder="${module.placeholder}" value="${value}">
-          <button data-save-module="${module.id}" type="button">OK</button>
-        </div>
-      </div>`;
-  }).join("");
-}
-
 document.querySelectorAll("[data-plan]").forEach((button) => {
   button.addEventListener("click", () => {
     const workout = ensureWorkout();
@@ -472,7 +302,6 @@ document.querySelectorAll("[data-plan]").forEach((button) => {
       workout.exercises = [];
     }
     save();
-    document.querySelector('[data-view="workouts"]').click();
   });
 });
 
@@ -546,18 +375,6 @@ document.getElementById("clearWorkoutButton").addEventListener("click", () => {
   save();
 });
 
-document.getElementById("goWorkoutButton").addEventListener("click", () => {
-  document.querySelector('[data-view="workouts"]').click();
-});
-
-document.getElementById("quickWorkoutButton").addEventListener("click", () => {
-  document.querySelector('[data-view="workouts"]').click();
-});
-
-document.getElementById("quickWeightButton").addEventListener("click", () => {
-  document.getElementById("weightInput").focus();
-});
-
 document.getElementById("startGymTimerButton").addEventListener("click", () => {
   state.gymTimer = { active: true, startedAt: Date.now(), elapsed: state.gymTimer?.elapsed || 0 };
   save();
@@ -576,34 +393,6 @@ document.getElementById("stopGymTimerButton").addEventListener("click", () => {
   clearInterval(gymTimerInterval);
 });
 
-document.getElementById("moduleList").addEventListener("click", (event) => {
-  const saveId = event.target.dataset.saveModule;
-  const toggleId = event.target.dataset.toggleModule;
-  const deleteId = event.target.dataset.deleteModule;
-
-  if (saveId) {
-    const module = state.modules.find((item) => item.id === saveId);
-    const input = document.querySelector(`[data-module-input="${saveId}"]`);
-    if (!module || !input.value.trim()) return;
-    module.entries = module.entries || {};
-    module.entries[selectedDate] = input.value.trim();
-    save();
-  }
-
-  if (toggleId) {
-    const module = state.modules.find((item) => item.id === toggleId);
-    if (!module) return;
-    module.entries = module.entries || {};
-    module.entries[selectedDate] = module.entries[selectedDate] ? "" : "Hecho";
-    save();
-  }
-
-  if (deleteId) {
-    state.modules = state.modules.filter((item) => item.id !== deleteId);
-    save();
-  }
-});
-
 document.getElementById("prevDayButton").addEventListener("click", () => {
   selectedDate = addDays(selectedDate, -1);
   render();
@@ -614,133 +403,6 @@ document.getElementById("nextDayButton").addEventListener("click", () => {
   render();
 });
 
-document.getElementById("historyList").addEventListener("click", (event) => {
-  const button = event.target.closest("[data-go-date]");
-  if (!button) return;
-  selectedDate = button.dataset.goDate;
-  document.querySelector('[data-view="today"]').click();
-  render();
-});
-
-document.getElementById("calendarStrip").addEventListener("click", (event) => {
-  const button = event.target.closest("[data-calendar-date]");
-  if (!button) return;
-  selectedDate = button.dataset.calendarDate;
-  render();
-});
-
-document.getElementById("editModulesButton").addEventListener("click", () => {
-  document.getElementById("moduleDialog").showModal();
-});
-
-document.getElementById("openSettingsButton").addEventListener("click", () => {
-  document.getElementById("settingsMessage").textContent = "";
-  document.getElementById("targetWeightInput").value = state.targetWeight;
-  document.getElementById("settingsDialog").showModal();
-});
-
-document.getElementById("closeSettingsDialog").addEventListener("click", () => {
-  document.getElementById("settingsDialog").close();
-});
-
-document.getElementById("settingsForm").addEventListener("submit", (event) => {
-  event.preventDefault();
-  const value = Number(String(document.getElementById("targetWeightInput").value).replace(",", "."));
-  if (!value) return;
-  state.targetWeight = value;
-  document.getElementById("settingsMessage").textContent = "Objetivo actualizado.";
-  save();
-});
-
-document.getElementById("exportDataButton").addEventListener("click", () => {
-  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `gimnasio-backup-${todayKey()}.json`;
-  link.click();
-  URL.revokeObjectURL(url);
-});
-
-document.getElementById("importDataInput").addEventListener("change", (event) => {
-  const file = event.target.files[0];
-  const message = document.getElementById("settingsMessage");
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    let imported;
-    try {
-      imported = JSON.parse(reader.result);
-    } catch {
-      message.textContent = "Archivo invalido: no es JSON valido.";
-      return;
-    }
-    if (!Array.isArray(imported.workouts) || !Array.isArray(imported.weights)) {
-      message.textContent = "Archivo invalido: falta workouts o weights.";
-      return;
-    }
-    if (!confirm("Esto reemplaza todos los datos actuales por los del archivo. Continuar?")) return;
-    localStorage.setItem("gym-pwa-data", JSON.stringify(imported));
-    location.reload();
-  };
-  reader.readAsText(file);
-  event.target.value = "";
-});
-
-document.getElementById("resetDataButton").addEventListener("click", () => {
-  if (!confirm("Esto borra todos los datos guardados en este dispositivo. Continuar?")) return;
-  localStorage.removeItem("gym-pwa-data");
-  location.reload();
-});
-
-document.getElementById("addModuleInlineButton").addEventListener("click", () => {
-  document.getElementById("moduleDialog").showModal();
-});
-
-document.getElementById("closeModuleDialog").addEventListener("click", () => {
-  document.getElementById("moduleDialog").close();
-});
-
-document.querySelectorAll("[data-preset]").forEach((button) => {
-  button.addEventListener("click", () => {
-    const [title, type, placeholder] = button.dataset.preset.split("|");
-    document.getElementById("moduleTitle").value = title;
-    document.getElementById("moduleType").value = type;
-    document.getElementById("modulePlaceholder").value = placeholder;
-  });
-});
-
-document.getElementById("moduleForm").addEventListener("submit", (event) => {
-  event.preventDefault();
-  const title = document.getElementById("moduleTitle").value.trim();
-  const type = document.getElementById("moduleType").value;
-  const placeholder = document.getElementById("modulePlaceholder").value.trim() || "Escribe el dato de hoy";
-  if (!title) return;
-
-  state.modules.push({
-    id: `${Date.now()}`,
-    title,
-    type,
-    placeholder,
-    entries: {}
-  });
-
-  document.getElementById("moduleTitle").value = "";
-  document.getElementById("moduleType").value = "numero";
-  document.getElementById("modulePlaceholder").value = "";
-  document.getElementById("moduleDialog").close();
-  save();
-});
-
-document.querySelectorAll(".tab").forEach((tab) => {
-  tab.addEventListener("click", () => {
-    document.querySelectorAll(".tab").forEach((item) => item.classList.remove("active"));
-    document.querySelectorAll(".view").forEach((item) => item.classList.remove("active"));
-    tab.classList.add("active");
-    document.getElementById(`${tab.dataset.view}View`).classList.add("active");
-  });
-});
-
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./sw.js");
 }
@@ -749,4 +411,3 @@ render();
 if (state.gymTimer?.active) {
   gymTimerInterval = setInterval(renderGymTimer, 1000);
 }
-
