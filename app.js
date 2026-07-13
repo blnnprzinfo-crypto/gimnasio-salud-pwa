@@ -1,4 +1,4 @@
-const dateKey = (date = new Date()) => {
+﻿const dateKey = (date = new Date()) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
@@ -168,6 +168,10 @@ const allExercises = () => state.workouts.flatMap((workout) =>
   (workout.exercises || []).map((exercise) => ({ ...exercise, date: workout.date, workout: workout.title }))
 );
 
+const exerciseHistory = (name) => allExercises()
+  .filter((exercise) => normalize(exercise.name) === normalize(name) && parseKg(exercise.value))
+  .sort((a, b) => a.date.localeCompare(b.date));
+
 const records = () => {
   const byName = new Map();
   allExercises().forEach((exercise) => {
@@ -181,6 +185,14 @@ const records = () => {
   });
   return [...byName.values()].sort((a, b) => b.kg - a.kg);
 };
+
+const workoutVolume = (workout) => (workout.exercises || []).reduce((total, exercise) => {
+  const sets = Number(exercise.sets) || 1;
+  const reps = Number(exercise.reps) || 1;
+  return total + (parseKg(exercise.value) * sets * reps);
+}, 0);
+
+const workoutSets = (workout) => (workout.exercises || []).reduce((total, exercise) => total + (Number(exercise.sets) || 1), 0);
 
 const matchesTemplateExercises = (workout) => {
   const template = planTemplates[workout.title] || [];
@@ -197,9 +209,6 @@ const matchesTemplateExercises = (workout) => {
 function render() {
   const weight = latestWeight();
   const firstWeight = state.weights[0]?.value || weight;
-  const totalToLose = firstWeight - state.targetWeight;
-  const lost = firstWeight - weight;
-  const progress = totalToLose ? Math.max(0, Math.min(100, Math.round((lost / totalToLose) * 100))) : 100;
   const workout = getWorkout() || { title: "", exercises: [] };
   const dayNumber = Math.max(1, daysBetween(state.startDate, selectedDate) + 1);
   const isToday = selectedDate === todayKey();
@@ -208,17 +217,21 @@ function render() {
   setText("dayLabel", `Dia ${dayNumber} - ${isToday ? "hoy" : formatDate(selectedDate)}`);
   setText("selectedDateLabel", isToday ? "Hoy" : isYesterday ? "Ayer" : formatDate(selectedDate));
   setText("selectedDateDetail", selectedDate);
-
   setText("currentWeight", `${weight.toFixed(1).replace(".0", "")} kg`);
-  setText("targetWeightLabel", `Objetivo: ${state.targetWeight} kg`);
-  setText("weightProgress", `${progress}%`);
-  const progressRing = document.querySelector(".progress-ring");
-  if (progressRing) {
-    progressRing.style.background = `conic-gradient(var(--green) ${progress * 3.6}deg, #f1f1f2 0deg)`;
+  setText("activeWorkoutTitle", workout.title || "Elige grupo");
+  setText("activeWorkoutMeta", `${workout.exercises.length} ejercicios · objetivo ${state.targetWeight} kg`);
+  setText("sessionCount", String(workout.exercises.length));
+  setText("totalVolume", `${Math.round(workoutVolume(workout))} kg`);
+  setText("setsToday", String(workoutSets(workout)));
+
+  const sessionProgress = Math.min(100, workout.exercises.length * 20);
+  const sessionRing = document.querySelector(".session-ring");
+  if (sessionRing) {
+    sessionRing.style.background = `conic-gradient(var(--green) ${sessionProgress * 3.6}deg, #f1f1f2 0deg)`;
   }
+
   const delta = weight - firstWeight;
   setText("weightDelta", delta === 0 ? "Sin cambios" : `${delta > 0 ? "+" : ""}${delta.toFixed(1)} kg total`);
-
   setText("streakHero", `${state.workouts.filter((item) => item.title || item.exercises?.length).length}`);
   const topRecord = records()[0];
   setText("recordHero", topRecord ? `${topRecord.kg} kg` : "0 kg");
@@ -229,17 +242,23 @@ function render() {
   });
   renderGymTimer();
 
-  document.getElementById("exerciseList").innerHTML = workout.exercises.map((item, index) => (
-    `<div class="exercise-item">
+  document.getElementById("exerciseList").innerHTML = workout.exercises.map((item, index) => {
+    const kg = parseKg(item.value);
+    const volume = Math.round(kg * (Number(item.sets) || 1) * (Number(item.reps) || 1));
+    return `<div class="exercise-item">
       <div class="exercise-thumb exercise-thumb-${exerciseKind(item.name)}" aria-hidden="true"></div>
-      <div><strong>${item.name}</strong><span>${[
-        item.sets ? `${item.sets} series` : "",
-        item.reps ? `${item.reps} reps` : "",
-        item.value
-      ].filter(Boolean).join(" · ")}</span></div>
+      <div>
+        <strong>${item.name}</strong>
+        <span>${[
+          item.sets ? `${item.sets} series` : "1 serie",
+          item.reps ? `${item.reps} reps` : "",
+          item.value
+        ].filter(Boolean).join(" · ")}</span>
+        <small>${kg ? `Volumen aprox. ${volume} kg` : "Cardio / tiempo"}</small>
+      </div>
       <button class="remove-exercise" data-remove-exercise="${index}" type="button" aria-label="Eliminar ejercicio">&#10005;</button>
-    </div>`
-  )).join("") || `<div class="module-empty">Aun no has marcado ejercicios para este dia.</div>`;
+    </div>`;
+  }).join("") || `<div class="module-empty">Aun no has marcado ejercicios para este dia.</div>`;
 
   renderExercisePicker(workout);
   renderRecords();
@@ -272,7 +291,7 @@ function renderExercisePicker(workout) {
         <div class="exercise-thumb exercise-thumb-${exerciseKind(exercise.name)}" aria-hidden="true"></div>
         <div>
           <strong>${exercise.name}</strong>
-          <span>${done ? "Registrado" : `Tocar para anadir · ${exercise.value || "sin peso"}`}</span>
+          <span>${done ? "Registrado" : `Tocar para añadir · ${exercise.value || "sin peso"}`}</span>
         </div>
         <em>${done ? "OK" : "+"}</em>
       </button>`;
@@ -282,15 +301,21 @@ function renderExercisePicker(workout) {
 function renderRecords() {
   const list = document.getElementById("recordsList");
   const best = records();
-  list.innerHTML = best.length ? best.slice(0, 8).map((item) => `
-    <div class="record-item">
+  list.innerHTML = best.length ? best.slice(0, 8).map((item) => {
+    const history = exerciseHistory(item.name).slice(-5);
+    return `<div class="record-item">
       <div class="exercise-thumb exercise-thumb-${exerciseKind(item.name)}" aria-hidden="true"></div>
       <div>
         <strong>${item.name}</strong>
         <span>${item.kg} kg · ${item.workout || "Entreno"} · ${item.date}</span>
+        <div class="record-bars">${history.map((entry) => {
+          const kg = parseKg(entry.value);
+          const height = Math.max(18, Math.round((kg / Math.max(item.kg, 1)) * 100));
+          return `<i style="height:${height}%"><b>${kg}</b></i>`;
+        }).join("")}</div>
       </div>
-    </div>
-  `).join("") : `<div class="module-empty">Cuando guardes pesos en kg, aqui apareceran tus records por ejercicio.</div>`;
+    </div>`;
+  }).join("") : `<div class="module-empty">Cuando guardes pesos en kg, aqui apareceran tus records por ejercicio.</div>`;
 }
 
 document.querySelectorAll("[data-plan]").forEach((button) => {
@@ -411,3 +436,4 @@ render();
 if (state.gymTimer?.active) {
   gymTimerInterval = setInterval(renderGymTimer, 1000);
 }
+
