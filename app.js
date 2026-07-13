@@ -23,11 +23,9 @@ const daysBetween = (start, end) => Math.floor((new Date(end) - new Date(start))
 const yesterdayKey = () => addDays(todayKey(), -1);
 const seed = {
   targetWeight: 65,
-  waterGoal: 2000,
   startDate: yesterdayKey(),
   migratedBackDay: true,
   weights: [{ date: yesterdayKey(), value: 80 }],
-  water: {},
   modules: [],
   workouts: [
     {
@@ -90,8 +88,6 @@ const load = () => {
   const saved = localStorage.getItem("gym-pwa-data");
   const data = saved ? JSON.parse(saved) : seed;
   data.modules = data.modules || seed.modules;
-  data.modules = data.modules.filter((module) => module.id !== "sleep" && module.title !== "Sueno");
-  data.water = data.water || {};
   data.weights = data.weights || seed.weights;
   data.workouts = data.workouts || seed.workouts;
   data.startDate = data.startDate || data.workouts[0]?.date || data.weights[0]?.date || todayKey();
@@ -102,6 +98,12 @@ const load = () => {
     && data.workouts[0].exercises?.length === 5
     && !data.migratedBackDay;
   let changed = false;
+
+  if (!data.migratedSleepModule) {
+    data.modules = data.modules.filter((module) => module.id !== "sleep" && module.title !== "Sueno");
+    data.migratedSleepModule = true;
+    changed = true;
+  }
 
   if (hasOnlyDefaultBackDay) {
     data.workouts[0].date = yesterdayKey();
@@ -145,7 +147,6 @@ const fileToDataUrl = (file) => new Promise((resolve) => {
 });
 
 const latestWeight = () => state.weights[state.weights.length - 1]?.value || 80;
-const selectedWater = () => state.water[selectedDate] || 0;
 const getWorkout = (date = selectedDate) => state.workouts.find((item) => item.date === date);
 const ensureWorkout = () => {
   let workout = state.workouts.find((item) => item.date === selectedDate);
@@ -227,10 +228,10 @@ const matchesTemplateExercises = (workout) => {
 
 function render() {
   const weight = latestWeight();
-  const totalToLose = 80 - state.targetWeight;
-  const lost = 80 - weight;
-  const progress = Math.max(0, Math.min(100, Math.round((lost / totalToLose) * 100)));
-  const water = selectedWater();
+  const firstWeight = state.weights[0]?.value || weight;
+  const totalToLose = firstWeight - state.targetWeight;
+  const lost = firstWeight - weight;
+  const progress = totalToLose ? Math.max(0, Math.min(100, Math.round((lost / totalToLose) * 100))) : 100;
   const workout = getWorkout() || { title: "", exercises: [] };
   const dayNumber = Math.max(1, daysBetween(state.startDate, selectedDate) + 1);
   const isToday = selectedDate === todayKey();
@@ -241,21 +242,17 @@ function render() {
   setText("selectedDateDetail", selectedDate);
 
   setText("currentWeight", `${weight.toFixed(1).replace(".0", "")} kg`);
+  setText("targetWeightLabel", `Objetivo: ${state.targetWeight} kg`);
   setText("weightProgress", `${progress}%`);
   const progressRing = document.querySelector(".progress-ring");
   if (progressRing) {
     progressRing.style.background = `conic-gradient(var(--green) ${progress * 3.6}deg, #f1f1f2 0deg)`;
   }
-  setText("waterSummary", "");
-  setText("waterMessage", "");
-
-  const firstWeight = state.weights[0]?.value || weight;
   const delta = weight - firstWeight;
   setText("weightDelta", delta === 0 ? "Sin cambios" : `${delta > 0 ? "+" : ""}${delta.toFixed(1)} kg total`);
   setText("weightMessage", weight <= firstWeight ? "Vas en buena direccion. Lo importante es registrar, no hacerlo perfecto." : "Sin drama: registra el dato y seguimos con el plan.");
 
-  setText("workoutsWeek", String(state.workouts.length));
-  setText("waterStreak", water >= state.waterGoal ? "1" : "0");
+  setText("workoutsWeek", String(state.workouts.filter((item) => item.title || item.exercises?.length).length));
   setText("weightStreak", String(state.weights.length));
   setText("streakSummary", `Dia ${dayNumber}`);
   setText("streakHero", `${state.workouts.filter((item) => item.title || item.exercises?.length).length}`);
@@ -267,7 +264,6 @@ function render() {
   document.querySelectorAll("[data-plan]").forEach((button) => {
     button.classList.toggle("selected", button.dataset.plan === workout.title);
   });
-  updateHealthLinks(weight, water, workout);
   renderGymTimer();
 
   document.getElementById("todaySummary").innerHTML = [
@@ -275,7 +271,7 @@ function render() {
     `${workout.exercises.length} ejercicios registrados.`
   ].map((item) => `<li>${item}</li>`).join("");
 
-  document.getElementById("exerciseList").innerHTML = workout.exercises.map((item) => (
+  document.getElementById("exerciseList").innerHTML = workout.exercises.map((item, index) => (
     `<div class="exercise-item">
       <div class="exercise-thumb exercise-thumb-${exerciseKind(item.name)}" aria-hidden="true"></div>
       <div><strong>${item.name}</strong><span>${[
@@ -283,12 +279,12 @@ function render() {
         item.reps ? `${item.reps} reps` : "",
         item.value
       ].filter(Boolean).join(" · ")}</span></div>
+      <button class="remove-exercise" data-remove-exercise="${index}" type="button" aria-label="Eliminar ejercicio">&#10005;</button>
     </div>`
   )).join("") || `<div class="module-empty">Aun no has marcado ejercicios para este dia.</div>`;
 
   renderExercisePicker(workout);
   renderRecords();
-  renderHomeRecords();
   renderGroupCounts();
   renderFeaturedExercise(workout);
   renderCalendar();
@@ -378,32 +374,17 @@ function renderGroupCounts() {
   `).join("") : `<div class="module-empty">Cuando guardes entrenos, aqui veras que grupos repites mas.</div>`;
 }
 
-function renderHomeRecords() {
-  const list = document.getElementById("homeRecordsList");
-  const best = records().slice(0, 3);
-  list.innerHTML = best.length ? best.map((item) => `
-    <div class="record-item">
-      <div class="exercise-thumb exercise-thumb-${exerciseKind(item.name)}" aria-hidden="true"></div>
-      <div>
-        <strong>${item.name}</strong>
-        <span>${item.kg} kg · ${item.workout || "Entreno"}</span>
-      </div>
-    </div>
-  `).join("") : `<div class="module-empty">Tus PRs apareceran aqui cuando guardes ejercicios con kg.</div>`;
-}
-
 function renderCalendar() {
   const days = Array.from({ length: 7 }, (_, index) => addDays(todayKey(), index - 3));
   document.getElementById("calendarStrip").innerHTML = days.map((date) => {
     const workout = getWorkout(date);
     const hasWorkout = !!(workout?.title || workout?.exercises?.length);
-    const hasWater = (state.water[date] || 0) >= state.waterGoal;
     const isSelected = date === selectedDate;
     return `
       <button class="calendar-day ${isSelected ? "selected" : ""}" data-calendar-date="${date}" type="button">
         <span>${formatDate(date).split(" ")[0]}</span>
         <strong>${Number(date.slice(-2))}</strong>
-        <small>${hasWorkout ? "🏋️" : hasWater ? "💧" : "·"}</small>
+        <small>${hasWorkout ? "🏋️" : "·"}</small>
       </button>`;
   }).join("");
 }
@@ -422,16 +403,6 @@ function renderRecords() {
   `).join("") : `<div class="module-empty">Cuando guardes pesos en kg, aqui apareceran tus records por ejercicio.</div>`;
 }
 
-function shortcutUrl(name, text) {
-  return `shortcuts://run-shortcut?name=${encodeURIComponent(name)}&input=text&text=${encodeURIComponent(text)}`;
-}
-
-function updateHealthLinks(weight, water, workout) {
-  ["shortcutWaterLink", "shortcutWeightLink", "shortcutWorkoutLink", "shortcutFocusLink", "shortcutWater250Link", "shortcutWater500Link", "shortcutWater750Link", "shortcutWater1000Link"].forEach((id) => {
-    document.getElementById(id).textContent = "";
-  });
-}
-
 function renderStreakDots() {
   const days = Array.from({ length: 7 }, (_, index) => addDays(todayKey(), index - 6));
   document.getElementById("streakColors").innerHTML = days.map((date) => {
@@ -443,14 +414,12 @@ function renderStreakDots() {
 function renderHistory() {
   const dates = [...new Set([
     ...state.workouts.map((item) => item.date),
-    ...state.weights.map((item) => item.date),
-    ...Object.keys(state.water)
+    ...state.weights.map((item) => item.date)
   ])].sort().reverse().slice(0, 10);
 
   document.getElementById("historyList").innerHTML = dates.map((date) => {
   const workout = getWorkout(date);
     const weight = state.weights.find((item) => item.date === date);
-    const water = state.water[date] || 0;
     return `
       <button class="history-item" data-go-date="${date}" type="button">
         <strong>${date === todayKey() ? "Hoy" : date === yesterdayKey() ? "Ayer" : formatDate(date)}</strong>
@@ -493,12 +462,6 @@ function renderModules() {
       </div>`;
   }).join("");
 }
-
-document.querySelectorAll("[data-water]").forEach((button) => {
-  button.addEventListener("click", () => {
-    save();
-  });
-});
 
 document.querySelectorAll("[data-plan]").forEach((button) => {
   button.addEventListener("click", () => {
@@ -566,6 +529,23 @@ document.getElementById("exerciseForm").addEventListener("submit", async (event)
   save();
 });
 
+document.getElementById("exerciseList").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-remove-exercise]");
+  if (!button) return;
+  const workout = ensureWorkout();
+  workout.exercises.splice(Number(button.dataset.removeExercise), 1);
+  save();
+});
+
+document.getElementById("clearWorkoutButton").addEventListener("click", () => {
+  const workout = getWorkout();
+  if (!workout || (!workout.title && !workout.exercises.length)) return;
+  if (!confirm("Vaciar el entreno de este dia?")) return;
+  workout.title = "";
+  workout.exercises = [];
+  save();
+});
+
 document.getElementById("goWorkoutButton").addEventListener("click", () => {
   document.querySelector('[data-view="workouts"]').click();
 });
@@ -577,8 +557,6 @@ document.getElementById("quickWorkoutButton").addEventListener("click", () => {
 document.getElementById("quickWeightButton").addEventListener("click", () => {
   document.getElementById("weightInput").focus();
 });
-
-document.getElementById("healthHelpButton").addEventListener("click", () => {});
 
 document.getElementById("startGymTimerButton").addEventListener("click", () => {
   state.gymTimer = { active: true, startedAt: Date.now(), elapsed: state.gymTimer?.elapsed || 0 };
@@ -597,23 +575,6 @@ document.getElementById("stopGymTimerButton").addEventListener("click", () => {
   }
   clearInterval(gymTimerInterval);
 });
-
-document.getElementById("enableNotificationsButton").addEventListener("click", async () => {
-  const message = document.getElementById("notificationMessage");
-  if (!("Notification" in window)) {
-    message.textContent = "Este navegador no permite notificaciones web.";
-    return;
-  }
-  const permission = await Notification.requestPermission();
-  if (permission === "granted") {
-    message.textContent = "Notificaciones activadas. Te mostrare un aviso de prueba.";
-    new Notification("Gimnasio", { body: "Recuerda registrar tu progreso." });
-  } else {
-    message.textContent = "No se han activado. Revisa permisos de Safari/iPhone.";
-  }
-});
-
-document.getElementById("closeHealthDialog").addEventListener("click", () => {});
 
 document.getElementById("moduleList").addEventListener("click", (event) => {
   const saveId = event.target.dataset.saveModule;
@@ -670,6 +631,66 @@ document.getElementById("calendarStrip").addEventListener("click", (event) => {
 
 document.getElementById("editModulesButton").addEventListener("click", () => {
   document.getElementById("moduleDialog").showModal();
+});
+
+document.getElementById("openSettingsButton").addEventListener("click", () => {
+  document.getElementById("settingsMessage").textContent = "";
+  document.getElementById("targetWeightInput").value = state.targetWeight;
+  document.getElementById("settingsDialog").showModal();
+});
+
+document.getElementById("closeSettingsDialog").addEventListener("click", () => {
+  document.getElementById("settingsDialog").close();
+});
+
+document.getElementById("settingsForm").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const value = Number(String(document.getElementById("targetWeightInput").value).replace(",", "."));
+  if (!value) return;
+  state.targetWeight = value;
+  document.getElementById("settingsMessage").textContent = "Objetivo actualizado.";
+  save();
+});
+
+document.getElementById("exportDataButton").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `gimnasio-backup-${todayKey()}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById("importDataInput").addEventListener("change", (event) => {
+  const file = event.target.files[0];
+  const message = document.getElementById("settingsMessage");
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    let imported;
+    try {
+      imported = JSON.parse(reader.result);
+    } catch {
+      message.textContent = "Archivo invalido: no es JSON valido.";
+      return;
+    }
+    if (!Array.isArray(imported.workouts) || !Array.isArray(imported.weights)) {
+      message.textContent = "Archivo invalido: falta workouts o weights.";
+      return;
+    }
+    if (!confirm("Esto reemplaza todos los datos actuales por los del archivo. Continuar?")) return;
+    localStorage.setItem("gym-pwa-data", JSON.stringify(imported));
+    location.reload();
+  };
+  reader.readAsText(file);
+  event.target.value = "";
+});
+
+document.getElementById("resetDataButton").addEventListener("click", () => {
+  if (!confirm("Esto borra todos los datos guardados en este dispositivo. Continuar?")) return;
+  localStorage.removeItem("gym-pwa-data");
+  location.reload();
 });
 
 document.getElementById("addModuleInlineButton").addEventListener("click", () => {

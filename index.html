@@ -7,9 +7,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Gimnasio" />
-    <link rel="manifest" href="./manifest.webmanifest?v=16" />
+    <link rel="manifest" href="./manifest.webmanifest?v=17" />
     <link rel="icon" href="./icons/icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=16" />
+    <link rel="stylesheet" href="./styles.css?v=17" />
     <title>Gimnasio</title>
   </head>
   <body>
@@ -19,7 +19,10 @@
           <p class="eyebrow" id="dayLabel">Vuelta al gimnasio</p>
           <h1>Gimnasio</h1>
         </div>
-        <button class="icon-button" id="editModulesButton" aria-label="Editar modulos">+</button>
+        <div class="topbar-actions">
+          <button class="icon-button" id="openSettingsButton" aria-label="Ajustes">&#9881;&#65039;</button>
+          <button class="icon-button" id="editModulesButton" aria-label="Editar modulos">+</button>
+        </div>
       </header>
 
       <section class="quick-actions gym-actions" aria-label="Acciones rapidas">
@@ -41,7 +44,7 @@
           <div>
             <span class="soft-label">Peso actual</span>
             <strong id="currentWeight">80 kg</strong>
-            <small>Objetivo inicial: 65 kg</small>
+            <small id="targetWeightLabel">Objetivo: 65 kg</small>
           </div>
           <div class="progress-ring" aria-label="Progreso al objetivo">
             <span id="weightProgress">0%</span>
@@ -97,14 +100,6 @@
           </article>
         </section>
 
-        <article class="panel pr-panel">
-          <div class="panel-title">
-            <h2>Records por ejercicio</h2>
-            <span>mejores marcas</span>
-          </div>
-          <div class="records-list compact-records" id="homeRecordsList"></div>
-        </article>
-
         <article class="panel priority-panel">
           <div class="panel-title">
             <h2>&#127947;&#65039; Entreno activo</h2>
@@ -124,14 +119,6 @@
             <button type="submit">Guardar</button>
           </form>
           <p class="message" id="weightMessage">Registra el peso aunque no sea perfecto. Sirve para ver tendencia.</p>
-        </article>
-
-        <article class="panel notify-panel">
-          <div class="panel-title">
-            <h2>&#128293; Racha semanal</h2>
-            <span id="streakSummary">Dia 1</span>
-          </div>
-          <div class="streak-colors" id="streakColors"></div>
         </article>
 
         <div class="module-list hidden" id="moduleList"></div>
@@ -156,6 +143,13 @@
             <div><strong id="workoutsWeek">1</strong><span>Entrenos semana</span></div>
             <div><strong id="weightStreak">0</strong><span>Racha peso</span></div>
           </div>
+        </article>
+        <article class="panel notify-panel">
+          <div class="panel-title">
+            <h2>&#128293; Racha semanal</h2>
+            <span id="streakSummary">Dia 1</span>
+          </div>
+          <div class="streak-colors" id="streakColors"></div>
         </article>
         <article class="panel">
           <div class="panel-title">
@@ -188,6 +182,7 @@
             <input id="workoutTitleInput" placeholder="Que toca hoy: pierna, espalda, triceps..." />
             <button type="submit">Dia</button>
           </form>
+          <button class="ghost-button" id="clearWorkoutButton" type="button">Vaciar dia</button>
           <div class="exercise-picker-panel">
             <div class="panel-title">
               <h3>Marca lo que has hecho</h3>
@@ -220,6 +215,30 @@
         <button class="tab" data-view="stats"><span>&#128200;</span>Progreso</button>
       </nav>
 
+      <dialog id="settingsDialog">
+        <form class="module-form" id="settingsForm">
+          <div class="dialog-title">
+            <h2>Ajustes</h2>
+            <button class="ghost-button" id="closeSettingsDialog" type="button">Cerrar</button>
+          </div>
+          <label>
+            Peso objetivo (kg)
+            <input id="targetWeightInput" inputmode="decimal" placeholder="Ej: 65" />
+          </label>
+          <button type="submit">Guardar objetivo</button>
+          <div class="dialog-title">
+            <h2>Copia de seguridad</h2>
+          </div>
+          <button type="button" id="exportDataButton">Exportar datos (JSON)</button>
+          <label>
+            Importar datos (JSON)
+            <input id="importDataInput" type="file" accept="application/json" />
+          </label>
+          <p class="message" id="settingsMessage"></p>
+          <button type="button" class="danger-button" id="resetDataButton">Reiniciar todos los datos</button>
+        </form>
+      </dialog>
+
       <dialog id="moduleDialog">
         <form method="dialog" class="module-form" id="moduleForm">
           <div class="dialog-title">
@@ -251,16 +270,8 @@
         </form>
       </dialog>
 
-      <div class="hidden">
-        <span id="waterSummary"></span><span id="waterMessage"></span><span id="waterStreak"></span>
-        <span id="shortcutWaterLink"></span><span id="shortcutWeightLink"></span><span id="shortcutWorkoutLink"></span>
-        <span id="shortcutFocusLink"></span><span id="shortcutWater250Link"></span><span id="shortcutWater500Link"></span>
-        <span id="shortcutWater750Link"></span><span id="shortcutWater1000Link"></span>
-        <span id="notificationMessage"></span><button id="enableNotificationsButton" type="button"></button>
-        <button id="healthHelpButton" type="button"></button><button id="closeHealthDialog" type="button"></button>
-      </div>
-      <p class="app-version">v16</p>
+      <p class="app-version">v17</p>
     </main>
-    <script src="./app.js?v=16"></script>
+    <script src="./app.js?v=17"></script>
   </body>
 </html>

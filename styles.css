@@ -9,8 +9,8 @@
   --green: #2f80ed;
   --blue: #2f80ed;
   --orange: #ffcc00;
-  --red-soft: #eef5ff;
-  --cherry-dark: #1f66c2;
+  --accent-soft: #eef5ff;
+  --accent-dark: #1f66c2;
   --shadow: 0 12px 28px rgba(17, 17, 17, 0.06);
 }
 
@@ -61,6 +61,11 @@ input, select {
   justify-content: space-between;
   gap: 14px;
   padding: 8px 0 14px;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 8px;
 }
 
 .eyebrow, .soft-label {
@@ -234,7 +239,7 @@ h2 {
 .date-strip button {
   min-height: 40px;
   padding: 0 12px;
-  background: var(--red-soft);
+  background: var(--accent-soft);
   color: var(--green);
 }
 
@@ -731,7 +736,7 @@ h2 {
 
 .exercise-item {
   display: grid;
-  grid-template-columns: 52px 1fr;
+  grid-template-columns: 52px 1fr auto;
   gap: 12px;
   align-items: center;
 }
@@ -762,7 +767,7 @@ h2 {
   height: 52px;
   overflow: hidden;
   border-radius: 14px;
-  background: var(--red-soft);
+  background: var(--accent-soft);
   color: var(--green);
   font-size: 22px;
   font-weight: 900;
@@ -835,7 +840,7 @@ h2 {
   min-height: 36px;
   padding: 0 12px;
   border-radius: 999px;
-  background: var(--red-soft);
+  background: var(--accent-soft);
   color: var(--green);
   white-space: nowrap;
 }
@@ -876,6 +881,21 @@ h2 {
   color: #c2410c;
 }
 
+.danger-button {
+  background: #fff1f2;
+  color: #be123c;
+}
+
+.remove-exercise {
+  min-height: 34px;
+  width: 34px;
+  padding: 0;
+  border-radius: 999px;
+  background: #fff1f2;
+  color: #be123c;
+  font-size: 13px;
+}
+
 .hidden {
   display: none !important;
 }
@@ -884,8 +904,8 @@ h2 {
   width: 100%;
   min-height: 42px;
   margin-top: 10px;
-  background: var(--red-soft);
-  color: var(--cherry-dark);
+  background: var(--accent-soft);
+  color: var(--accent-dark);
 }
 
 .focus-actions {
@@ -898,18 +918,6 @@ h2 {
   background: #ffffff;
   border: 1px solid var(--line);
   color: var(--green);
-}
-
-.focus-shortcut-link {
-  display: grid;
-  min-height: 44px;
-  margin-top: 10px;
-  place-items: center;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  color: var(--green);
-  font-weight: 900;
-  text-decoration: none;
 }
 
 .photo-picker {
@@ -962,7 +970,7 @@ dialog::backdrop {
 .ghost-button {
   min-height: 38px;
   padding: 0 12px;
-  background: var(--red-soft);
+  background: var(--accent-soft);
   color: var(--text);
 }
 
@@ -988,15 +996,6 @@ dialog::backdrop {
   min-height: 42px;
   background: var(--panel-2);
   color: var(--green);
-}
-
-.shortcut-guide {
-  color: var(--muted);
-  line-height: 1.45;
-}
-
-.shortcut-guide ol {
-  padding-left: 20px;
 }
 
 .app-version {
